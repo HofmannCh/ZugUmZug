@@ -16,6 +16,14 @@ db.authenticate()
     .error((err:string) => console.error("DB Error: " + err))
 
 // Middleware
+
+// Allow origin access
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+})
+
 // Json body
 app.use(express.json({
     strict: true

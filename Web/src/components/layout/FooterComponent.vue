@@ -1,6 +1,6 @@
 <template>
   <footer>
-    <div>Lukas Hofmann 2019 &copy;</div>
+    <div>Lukas Hofmann 2019 - {{ new Date().getFullYear() }} &copy;</div>
   </footer>
 </template>
 

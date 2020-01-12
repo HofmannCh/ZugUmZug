@@ -13,10 +13,10 @@ Vue.config.productionTip = false
 
 new Vue({
   router,
-  render: h => h(App),
+  render: render => render(App),
   watch: {
     '$route' (to, from) {
-      document.title = (to.meta.title + " | Zug um Zug") || 'Zug um Zug'
+      document.title = to.meta.title ? to.meta.title + " | Zug um Zug" : 'Zug um Zug'
     }
   }
 }).$mount('#app')

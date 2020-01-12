@@ -1,16 +1,14 @@
 import 'module-alias/register';
-import express from "express"
 import * as dotenv from "dotenv";
 
 // DotEnv init
 dotenv.config()
 
+import express from "express"
 import db from "@lib/database";
 import { verifyToken } from "@lib/authentication"
 
 const app: express.Application = express()
-
-
 
 // Test database
 db.authenticate()

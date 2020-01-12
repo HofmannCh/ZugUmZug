@@ -29,7 +29,7 @@ router.post("/login", async (req, res) => {
 
     const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || 'secret-jwt';
     const tokenUser: TokenUser = { UserName: user.get("UserName") as String, Roles: user.get("Roles") as Number };
-    jwt.sign({ tokenUser }, JWT_SECRET, { expiresIn: '7 days' }, (err, token) => {
+    jwt.sign({ tokenUser }, JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION }, (err, token) => {
         return res.json({
             UserName: user.get("UserName"),
             Roles: user.get("Roles"),

@@ -35,8 +35,8 @@ export function verifyToken(req: any, res: any, next: any): any {
         })
     } else {
         // Forbidden
-        return res.status(403).json({
-            message: "Forbidden, please provide Bearer authentification header"
+        return res.status(401).json({
+            message: "Forbidden, please log in and/or provide Bearer authentification header"
         });
     }
 }

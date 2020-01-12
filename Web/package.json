@@ -1,7 +1,12 @@
 {
-  "name": "zug_um_zug",
+  "name": "train_by_train_web",
   "version": "0.1.0",
+  "description": "Frontend for the TrainByTrain app",
+  "keywords": [],
+  "author": "Lukas Hofmann",
+  "license": "MIT",
   "private": true,
+
   "scripts": {
     "serve": "vue-cli-service serve --mode development",
     "serve-prod": "vue-cli-service serve --mode production",

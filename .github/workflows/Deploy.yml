@@ -57,8 +57,6 @@ jobs:
         cp ./package.json ./dist/package.json
         cd ./dist/
         npm install --only-production
-        rm package.json
-        rm package-lock.json
       
     - name: FTP-Deploy-Action
       uses: SamKirkland/FTP-Deploy-Action@2.0.0

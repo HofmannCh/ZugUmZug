@@ -53,11 +53,11 @@
     "ext": "ts"
   },
   "_moduleAliases": {
-    "@": "dist/",
-    "@m": "dist/models",
-    "@r": "dist/routes",
-    "@lib": "dist/lib",
-    "@if": "dist/interfaces",
-    "@val": "dist/validations"
+    "@": "",
+    "@m": "models",
+    "@r": "routes",
+    "@lib": "lib",
+    "@if": "interfaces",
+    "@val": "validations"
   }
 }

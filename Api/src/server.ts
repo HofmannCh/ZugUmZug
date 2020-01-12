@@ -2,13 +2,15 @@ import 'module-alias/register';
 import express from "express"
 import * as dotenv from "dotenv";
 
+// DotEnv init
+dotenv.config()
+
 import db from "@lib/database";
 import { verifyToken } from "@lib/authentication"
 
 const app: express.Application = express()
 
-// DotEnv init
-dotenv.config()
+
 
 // Test database
 db.authenticate()
@@ -25,7 +27,7 @@ app.use(express.json({
 app.use(verifyToken);
 
 // Routes
-import authRouter from "./routes/authentication"
+import authRouter from "@r/authentication"
 app.use("/auth", authRouter)
 
 app.get("/", (req:any, res:any) => {

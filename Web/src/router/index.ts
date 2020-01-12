@@ -21,6 +21,15 @@ const routes = [
       auth: true,
       title: 'Über'
     }
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('../views/LoginView.vue'),
+    meta: {
+      auth: false,
+      title: 'Login'
+    }
   }
 ]
 
@@ -28,6 +37,25 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   mode: "history",
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  document.title = to.meta.title ? to.meta.title + " | Zug um Zug" : 'Zug um Zug'
+
+  if(to.meta.auth == false){
+    next()
+    return
+  }
+
+  if (!localStorage.getItem("authToken")) {
+    next({
+      path: '/login',
+      params: { nextUrl: to.fullPath }
+    })
+    return
+  }
+
+  next()
 })
 
 export default router

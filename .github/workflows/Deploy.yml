@@ -56,7 +56,7 @@ jobs:
         npm run build
         cp ./package.json ./dist/package.json
         cd ./dist/
-        npm run install --only-production
+        npm install --only-production
         rm package.json
         rm package-lock.json
       

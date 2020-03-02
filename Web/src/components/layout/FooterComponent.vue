@@ -1,5 +1,5 @@
 <template>
-  <footer>
+  <footer class="bg-light p-3">
     <div>Lukas Hofmann 2019 - {{ new Date().getFullYear() }} &copy;</div>
   </footer>
 </template>
@@ -12,5 +12,10 @@ export default class FooterComponent extends Vue {
 }
 </script>
 
-<style>
+<style lang="sass">
+footer
+  min-height: 80px
+  display: flex
+  flex-direction: column
+  justify-content: center
 </style>

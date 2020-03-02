@@ -18,27 +18,28 @@ export function verifyToken(req: any, res: any, next: any): any {
         req.token = bearerToken;
 
         const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || 'secret-jwt';
-        jwt.verify(bearerToken, JWT_SECRET, (err, authData: any) => {
-            if (err) {
-                return res.status(403).json({
-                    message: "Forbidden; " + err.name,
-                    error: err
-                })
-            }
 
-            req.tokenUser = authData.tokenUser;
-            authData = { ...authData }
-            delete authData.tokenUser;
+        try {
+            var authData: any = jwt.verify(bearerToken, JWT_SECRET)
+
+            req.tokenUser = authData.User;
+            authData = { ...authData } // clone
+            delete authData.User;
             req.authData = authData;
-
             return next()
-        })
-    } else {
-        // Forbidden
-        return res.status(401).json({
-            message: "Forbidden, please log in and/or provide Bearer authentification header"
-        });
+        } catch (err) {
+            return res.status(403).json({
+                message: "Forbidden, problems with authentification",
+                exception: err.name,
+                error: err
+            })
+        }
     }
+
+    // Unauthorized
+    return res.status(401).json({
+        message: "Unauthorized, please log in and/or provide Bearer authentification header"
+    });
 }
 
 /**

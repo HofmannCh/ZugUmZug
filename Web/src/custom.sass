@@ -1,16 +1,37 @@
-$primary: red
+$primary: #2200cd
+$light: #dee2e6 // $gray-300
+$enable-rounded: false
 
 // Bootstrap and its default variables
 @import '../node_modules/bootstrap/scss/bootstrap'
-// BootstrapVue and its default variables
-@import '../node_modules/bootstrap-vue/src/index.scss'
 
 html, body, #app
   margin: 0
   padding: 0
   width: 100vw
   min-height: 100vh
+  position: relative
 
 #app
   font-family: 'Avenir', Helvetica, Arial, sans-serif
   color: black
+
+.sbb-img
+  position: relative
+  width: 100%
+  height: 100%
+
+  img
+    width: 100%
+    height: 100%
+    object-fit: cover
+
+  span
+    position: absolute
+    bottom: 0
+    right: 0
+    padding: 2px 5px
+    background-color: $gray-600
+
+    a
+      color: $black !important

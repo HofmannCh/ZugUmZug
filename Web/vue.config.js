@@ -1,3 +1,10 @@
 module.exports = {
-    outputDir: "dist"
+    outputDir: "dist",
+    css: {
+        loaderOptions: {
+            sass: {
+                prependData: `@import "@/custom.sass"`
+            }
+        }
+    }
 }

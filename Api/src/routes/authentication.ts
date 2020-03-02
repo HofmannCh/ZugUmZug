@@ -25,16 +25,20 @@ router.post("/login", async (req, res) => {
     })
 
     if (user == null)
-        return res.status(404).json({ message: `User "${loginUser.value.Password}" not found witn the gived password` })
+        return res.status(404).json({ message: `User "${loginUser.value.UserName}" not found witn the given password` })
 
     const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || 'secret-jwt';
     const tokenUser: TokenUser = { UserName: user.get("UserName") as String, Roles: user.get("Roles") as Number };
-    jwt.sign({ tokenUser }, JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION }, (err, token) => {
+
+    try {
+        const token: string = jwt.sign({ tokenUser }, JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION })
         return res.json({
             User: tokenUser,
             Token: "Bearer " + token
         })
-    })
+    } catch (err) {
+        return res.status(500).json({ message: err.message, error: err })
+    }
 })
 
 router.post("/register", auth(Role.SuperUser), async (req, res) => {

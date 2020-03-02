@@ -69,15 +69,15 @@ export default class HeaderComponent extends Vue {
   constructor() {
     super();
 
-    console.log([
-      ["home", this.isVisible("home")],
-      ["about", this.isVisible("about")],
-      ["login", this.isVisible("login")],
-      ["map", this.isVisible("map")],
-      ["jokers", this.isVisible("jokers")],
-      ["submitStations", this.isVisible("submitStations")],
-      ["solveChallange", this.isVisible("solveChallange")]
-    ]);
+    // console.log([
+    //   ["home", this.isVisible("home")],
+    //   ["about", this.isVisible("about")],
+    //   ["login", this.isVisible("login")],
+    //   ["map", this.isVisible("map")],
+    //   ["jokers", this.isVisible("jokers")],
+    //   ["submitStations", this.isVisible("submitStations")],
+    //   ["solveChallange", this.isVisible("solveChallange")]
+    // ]);
   }
 
   isThisSite(name: string) {

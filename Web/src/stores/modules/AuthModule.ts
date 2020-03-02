@@ -46,13 +46,11 @@ class Auth extends VuexModule implements IAuthState {
             this.Logout()
             axios.post("https://api-zuz.hofi.dev/" + "auth/login", { UserName: data.userName, Password: data.password })
                 .then(resp => {
-                    console.dir(resp)
                     const token = resp.data.Token
                     this.SET_AUTH_SUCCESS({ userName: resp.data.User.UserName, userRoles: resp.data.User.Roles, token })
                     resolve()
                 })
                 .catch(err => {
-                    console.dir(err)
                     this.SET_AUTH_LOGOUT()
                     reject(err.response.data.message)
                 })
@@ -64,7 +62,7 @@ class Auth extends VuexModule implements IAuthState {
         this.SET_AUTH_LOGOUT()
     }
 
-    public get isUserLoggedIn(): boolean { console.log(this); return !!this.token && !!this.userName }
+    public get isUserLoggedIn(): boolean { return !!this.token && !!this.userName }
 }
 
 export const AuthModule = getModule(Auth)

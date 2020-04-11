@@ -1,9 +1,10 @@
 import * as jwt from "jsonwebtoken"
-import TokenUser from "@if/TokenUser"
+import User from "@/interfaces/User"
 import { Role } from "@if/UserRole"
+import { Request, Response } from "express";
 
 // Verify Token
-export function verifyToken(req: any, res: any, next: any): any {
+export function verifyToken(req: Request, res: Response, next: any): any {
     // No authentification
     if (req.path === "/auth/login"
         || req.path === "/auth/register"
@@ -11,21 +12,15 @@ export function verifyToken(req: any, res: any, next: any): any {
         return next()
     }
 
-    const bearerHeader: string = req.header("authorization");
+    const bearerHeader: string = req.header("authorization")!;
 
     if (bearerHeader && bearerHeader.startsWith("Bearer ")) {
         const bearerToken = bearerHeader.substring(7); // "Bearer " = 7 characters
-        req.token = bearerToken;
 
         const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || 'secret-jwt';
 
         try {
-            var authData: any = jwt.verify(bearerToken, JWT_SECRET)
-
-            req.tokenUser = authData.User;
-            authData = { ...authData } // clone
-            delete authData.User;
-            req.authData = authData;
+            jwt.verify(bearerToken, JWT_SECRET)
             return next()
         } catch (err) {
             return res.status(403).json({
@@ -47,16 +42,17 @@ export function verifyToken(req: any, res: any, next: any): any {
  * @param roles 
  */
 export function auth(flagSet: number) {
-    return (req: any, res: any, next: any) => {
-        const tokenUser: TokenUser = req.tokenUser;
+    return (req: Request, res: Response, next: any) => {
+        const tokenUser: User = req.session!.User;
 
-        // SuperAdmin
-        if (tokenUser.Roles as number & Role.SuperAdmin === Role.SuperAdmin)
-            return next()
+        if (tokenUser) {
+            // SuperAdmin
+            if (tokenUser.Roles as number & Role.SuperAdmin === Role.SuperAdmin)
+                return next()
 
-        if (flagSet === (flagSet & tokenUser.Roles as number))
-            return next();
-
+            if (flagSet === (flagSet & tokenUser.Roles as number))
+                return next();
+        }
         return res.status(403).json({
             message: "Forbidden, you don't have enougth permission"
         })
@@ -68,15 +64,17 @@ export function auth(flagSet: number) {
  * @param roles 
  */
 export function authOr(flagSet: number) {
-    return (req: any, res: any, next: any) => {
-        const tokenUser: TokenUser = req.tokenUser;
+    return (req: Request, res: Response, next: any) => {
+        const tokenUser: User = req.session!.User;
 
-        // SuperAdmin
-        if (tokenUser.Roles as number & Role.SuperAdmin === Role.SuperAdmin)
-            return next()
+        if (tokenUser) {
+            // SuperAdmin
+            if (tokenUser.Roles as number & Role.SuperAdmin === Role.SuperAdmin)
+                return next()
 
-        if (0 < (flagSet & tokenUser.Roles as number))
-            return next();
+            if (0 < (flagSet & tokenUser.Roles as number))
+                return next();
+        }
 
         return res.status(403).json({
             message: "Forbidden, you don't have enougth permission"

@@ -1,13 +1,12 @@
-import { Sequelize, SequelizeOptions } from "sequelize-typescript";
-import { Dialect } from "sequelize/types";
+import { Router, Response } from "express";
+import * as mysql from 'mysql2';
 
-const db = new Sequelize(process.env.DB_DATABASE!, process.env.DB_USERNAME!, process.env.DB_PASSWORD!, {
+const db = mysql.createConnection({
     host: process.env.DB_HOST!,
-    dialect: process.env.DB_DIALECT as Dialect,
-    define: {
-        timestamps: false
-    },
-    logging: false
+    user: process.env.DB_USERNAME!,
+    password: process.env.DB_PASSWORD!,
+    database: process.env.DB_DATABASE!,
+    namedPlaceholders: false
 });
 
 export default db;

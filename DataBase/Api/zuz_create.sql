@@ -16,7 +16,9 @@ create table `Users` (
     `Id` int primary key auto_increment,
     `UserName` varchar(20) not null,
     `PasswordHash` varchar(64) not null, -- theoretical utf8 not required
-    `Roles` int unsigned not null -- Roles flag
+    `Roles` int unsigned not null, -- Roles flag
+    `EventId` int null,
+    constraint `fk_Users_EventId` foreign key (`EventId`) references `Events`(Id)
 );
 
 create table `Groups` (
@@ -31,24 +33,24 @@ create table `Groups` (
     constraint `fk_Groups_EventId` foreign key (`EventId`) references `Events`(Id)
 );
 
-create table `Challanges` (
+create table `Challenges` (
     `Id` int primary key auto_increment,
     `Name` varchar(20) not null,
     `Description` text not null,
     `Points` int not null,
     `EventId` int not null,
-    constraint `fk_Challanges_EventId` foreign key (`EventId`) references `Events`(Id)
+    constraint `fk_Challenges_EventId` foreign key (`EventId`) references `Events`(Id)
 );
 
-create table `ChallangesSolved` (
+create table `ChallengesSolved` (
     `Id` int primary key auto_increment,
     `Valid` bit not null,
     `GroupId` int not null,
-    `ChallangeId` int not null,
-    `UserId` int null, -- Person who signed up the challange
-    constraint `fk_ChallangesSolved_GroupId` foreign key (`GroupId`) references `Groups`(Id),
-    constraint `fk_ChallangesSolved_ChallangeId` foreign key (`ChallangeId`) references `Challanges`(Id),
-    constraint `fk_ChallangesSolved_UserId` foreign key (`UserId`) references `Users`(Id)
+    `ChallengeId` int not null,
+    `UserId` int null, -- Person who signed up the challenge
+    constraint `fk_ChallengesSolved_GroupId` foreign key (`GroupId`) references `Groups`(Id),
+    constraint `fk_ChallengesSolved_ChallengeId` foreign key (`ChallengeId`) references `Challenges`(Id),
+    constraint `fk_ChallengesSolved_UserId` foreign key (`UserId`) references `Users`(Id)
 );
 
 create table `Locations` (
@@ -71,10 +73,10 @@ create table `ManualPoints` (
 create table `TrainStations` (
     `Id` int primary key auto_increment,
     `DateTime` datetime not null,
-    `Image` varbinary(45) null, -- todo and not null
+    `Image` varchar(255) null, -- todo and not null
     `Valid` bit not null,
     `GroupId` int not null,
-    `UserId` int null, -- Person who signed up the challange
+    `UserId` int null, -- Person who signed up the challenge
     constraint `fk_TrainStations_GroupId` foreign key (`GroupId`) references `Groups`(Id),
     constraint `fk_TrainStations_UserId` foreign key (`UserId`) references `Users`(Id)
 );

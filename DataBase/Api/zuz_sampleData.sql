@@ -5,8 +5,8 @@ delete from `Jokers`;
 delete from `TrainStations`;
 delete from `ManualPoints`;
 delete from `Locations`;
-delete from `ChallangesSolved`;
-delete from `Challanges`;
+delete from `ChallengesSolved`;
+delete from `Challenges`;
 delete from `Groups`;
 delete from `Users`;
 delete from `Events`;
@@ -18,14 +18,14 @@ values
 (3, '2021-11-16', 'Zürich', 'Ein super Event 3', 47.38085, 8.53004);
 
 insert into `Users` values -- Pw: 123456 (Hash)
-(1, 'Basis1',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000001'),
-(2, 'Basis2',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000001'),
-(3, 'Basis3',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000001'),
-(4, 'Basis4',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000001'),
-(5, 'Joker1',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000010'),
-(6, 'Joker2',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000010'),
-(7, 'SuperUser',    '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000100'),
-(8, 'SuperAdmin',   '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000001000');
+(1, 'Basis1',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000001', 1),
+(2, 'Basis2',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000001', 1),
+(3, 'Basis3',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000001', 1),
+(4, 'Basis4',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000001', 1),
+(5, 'Joker1',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000010', 1),
+(6, 'Joker2',       '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000010', 1),
+(7, 'SuperUser',    '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000000100', 1),
+(8, 'SuperAdmin',   '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000001000', null);
 
 insert into `Groups` values
 (1, 'GroupName1', '-- Uuid --', 'aaa', '[{name: "Tom11"},{name: "Tom12"},{name: Tom13}]', 1, 1),
@@ -37,15 +37,15 @@ insert into `Groups` values
 (7, 'GroupName7', '-- Uuid --', null,  '[{name: "Tom61"},{name: "Tom62"}]', 4, 2 ),
 (8, 'GroupName8', '-- Uuid --', null,  '[{name: "Tom71"},{name: "Tom72"}]', 4, 2 );
 
-insert into `Challanges` values
-(1, 'Challange1', 'Description 1', 100, 1),
-(2, 'Challange2', 'Description 2', 200, 1),
-(3, 'Challange3', 'Description 3', 300, 1),
-(4, 'Challange4', 'Description 4', 400, 1),
-(5, 'Challange5', 'Description 5', 500, 2),
-(6, 'Challange6', 'Description 6', 600, 2);
+insert into `Challenges` values
+(1, 'Challenge1', 'Description 1', 100, 1),
+(2, 'Challenge2', 'Description 2', 200, 1),
+(3, 'Challenge3', 'Description 3', 300, 1),
+(4, 'Challenge4', 'Description 4', 400, 1),
+(5, 'Challenge5', 'Description 5', 500, 2),
+(6, 'Challenge6', 'Description 6', 600, 2);
 
-insert into `ChallangesSolved` values
+insert into `ChallengesSolved` values
 (1, 1, 1, 1, 1),
 (2, 1, 1, 3, 2),
 (3, 0, 2, 3, null),

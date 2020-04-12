@@ -16,25 +16,20 @@
 
       <div class="collapse navbar-collapse" id="nav-collapse">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item" v-bind:class="{active: this.isThisSite('home')}">
-            <a class="nav-link" href="/">Home</a>
-          </li>
           <li
+            v-for="r in getVisibleSites()"
+            :key="r.path"
             class="nav-item"
-            v-bind:class="{'active': this.isThisSite('about'), 'd-none': !this.isVisible('about')}"
+            :class="{'active':r.isActive}"
           >
-            <a class="nav-link" href="/about">About</a>
+            <a class="nav-link" :href="r.path">{{r.title}}</a>
           </li>
         </ul>
         <ul class="navbar-nav">
           <li v-if="isUserLoggedIn" class="nav-item">
             <a class="nav-link">{{userName}}</a>
           </li>
-          <li
-            v-if="!isUserLoggedIn"
-            class="nav-item"
-            v-bind:class="{active: this.isThisSite('login')}"
-          >
+          <li v-if="!isUserLoggedIn" class="nav-item" :class="{'active':isSiteVisible('login')}">
             <a class="nav-link" href="/login">Login</a>
           </li>
           <li v-else class="nav-item">
@@ -64,42 +59,66 @@ import { Role } from "../../lib/UserRole";
 export default class HeaderComponent extends Vue {
   public isUserLoggedIn!: boolean;
   public userName!: string;
-  public userRoles!: Number;
+  public userRoles!: number;
 
   constructor() {
     super();
-
-    // console.log([
-    //   ["home", this.isVisible("home")],
-    //   ["about", this.isVisible("about")],
-    //   ["login", this.isVisible("login")],
-    //   ["map", this.isVisible("map")],
-    //   ["jokers", this.isVisible("jokers")],
-    //   ["submitStations", this.isVisible("submitStations")],
-    //   ["solveChallange", this.isVisible("solveChallange")]
-    // ]);
   }
 
-  isThisSite(name: string) {
-    return this.$route.name === name;
+  getVisibleSites() {
+    const ret: { title: string; path: string; isActive: boolean }[] = [];
+    const p = (x: any): { title: string; path: string; isActive: boolean } => {
+      return {
+        title: x.meta.title,
+        path: x.path,
+        isActive: x.name === this.$route.name
+      };
+    };
+    console.log((this.$router as any).options.routes);
+    console.log([this.isUserLoggedIn, this.userRoles, this.userName]);
+    for (const route of (this.$router as any).options.routes.filter(
+      (x: any) => x.name !== "login"
+    )) {
+      // route doesn't exists
+      console.log(route);
+      if (!route) {
+        console.log(route.meta.title + " 0");
+        continue;
+      }
+      // No auth required
+      else if (!route.meta || !route.meta.auth) {
+        console.log(route.meta.title + " 1");
+        ret.push(p(route));
+      }
+      // Auth is required, but user is not logged in
+      else if (route.meta.auth && !this.isUserLoggedIn) {
+        console.log(route.meta.title + " 2");
+        continue;
+      }
+      // Check if auth is valid
+      else if (!route.meta.visibleFor) {
+        console.log(route.meta.title + " 3");
+        continue;
+      }
+      // Check roles
+      else if (
+        (this.userRoles & route.meta.visibleFor) > 0 ||
+        (this.userRoles & Role.SuperAdmin) == Role.SuperAdmin
+      ) {
+        console.log(route.meta.title + " 4");
+        ret.push(p(route));
+      }
+      // This shouldn't be called
+      else {
+        console.log(route.meta.title + " 5");
+        continue;
+      }
+    }
+    return ret;
   }
 
-  isVisible(name: string) {
-    const router: any = this.$router;
-    let route: any = router.options.routes.find((x: any) => x.name === name);
-
-    if (!route) return false; // Route don't exists
-    if (!route.meta || !route.meta.auth) return true; // In the route is nothing defined
-    if (route.meta.auth && !this.isUserLoggedIn) return false; // Auth is required but not logged in
-    if (!route.meta.visibleFor || !(route.meta.visibleFor instanceof Number))
-      return false; // Route is restricted to roles
-    if (
-      ((this.userRoles as number) & route.meta.visibleFor) ===
-      route.meta.visibleFor
-    )
-      return true; // Check is user is autorized to view page
-
-    return false; // This shouldn't be called
+  isSiteVisible(name: string): boolean {
+    return name === this.$route.name;
   }
 
   logout() {

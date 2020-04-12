@@ -4,7 +4,7 @@ import { createHmac } from "crypto";
 import { loginRequestSchema } from "@val/requests/Authentification";
 import User from "@/interfaces/User";
 import db from "@lib/database";
-import zuzJson from "@/lib/responseHelper";
+import zuzJson, { zuzError } from "@/lib/responseHelper";
 import ZuzError from "@/interfaces/ZuzError";
 
 const router: Router = Router()
@@ -20,10 +20,10 @@ router.post("/login", (req, res) => {
     delete req.session!.User;
     delete req.session!.EventId;
 
-    db.execute("SELECT ??, ??, ?? FROM ?? WHERE ?? = ? AND ?? = ? LIMIT 1", ["UserName", "Roles", "EventId", "Users", "UserName", loginUser.value.UserName, "PasswordHash", pwHash], (err: any, rows: any[]) => {
+    db.execute(db.format("SELECT ??, ??, ?? FROM ?? WHERE ?? = ? AND ?? = ? LIMIT 1", ["UserName", "Roles", "EventId", "Users", "UserName", loginUser.value.UserName, "PasswordHash", pwHash]), (err: any, rows: any[]) => {
+        if(err) return zuzError(res, err);
+        else if (rows.length <= 0) return zuzError(res, new ZuzError(`User "${loginUser.value.UserName}" not found witn the given password`, undefined, 404));
         const user: any = rows[0];
-        if (user == null)
-            throw new ZuzError(`User "${loginUser.value.UserName}" not found witn the given password`, undefined, 404)
 
         const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || 'secret-jwt';
         const userObj: User = { UserName: user.UserName as string, Roles: user.Roles as number, EventId: user.EventId as number };
@@ -36,7 +36,7 @@ router.post("/login", (req, res) => {
                 Token: "Bearer " + token
             });
         } catch (err) {
-            throw new ZuzError(err.message, err)
+            return zuzError(res, new ZuzError(err.message, err))
         }
     });
 })

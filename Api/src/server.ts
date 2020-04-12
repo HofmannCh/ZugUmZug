@@ -27,7 +27,7 @@ app.use((req: Request, res: Response, next: any) => {
 
 // Json body
 app.use(express.json({
-    strict: true
+    strict: false,
 }));
 
 // Session
@@ -67,6 +67,9 @@ app.use("/manage/event", require("@r/manage/event").default);
 app.use("/manage/group", require("@r/manage/group").default);
 app.use("/manage/joker", require("@r/manage/joker").default);
 app.use("/manage/user", require("@r/manage/user").default);
+
+//Group
+app.use("/group/groupUuid", require("@r/group/groupUuid").default);
 
 
 // Shit and test

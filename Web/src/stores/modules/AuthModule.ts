@@ -1,6 +1,6 @@
-import axios from '@/lib/Api';
 import store from '@/stores'
 import { Module, VuexModule, Mutation, Action, getModule } from 'vuex-module-decorators'
+import api from '@/lib/Api'
 
 export interface IAuthState {
     token: string | undefined
@@ -24,7 +24,7 @@ class Auth extends VuexModule implements IAuthState {
         localStorage.setItem('authToken', this.token)
         localStorage.setItem('userName', this.userName)
         localStorage.setItem('userRoles', this.userRoles + "")
-        axios.defaults.headers.common['Authorization'] = this.token
+        api.defaults.headers.common['Authorization'] = this.token
     }
 
     @Mutation
@@ -36,7 +36,7 @@ class Auth extends VuexModule implements IAuthState {
         localStorage.removeItem('authToken')
         localStorage.removeItem('userName')
         localStorage.removeItem('userRoles')
-        delete axios.defaults.headers.common['Authorization']
+        delete api.defaults.headers.common['Authorization']
     }
 
     // Actions
@@ -44,15 +44,14 @@ class Auth extends VuexModule implements IAuthState {
     public Login(data: { userName: string, password: string }) {
         return new Promise((resolve, reject) => {
             this.Logout()
-            axios.post("https://api-zuz.hofi.dev/" + "auth/login", { UserName: data.userName, Password: data.password })
+            api.post("/auth/login", { UserName: data.userName, Password: data.password })
                 .then(resp => {
-                    const token = resp.data.Token
-                    this.SET_AUTH_SUCCESS({ userName: resp.data.User.UserName, userRoles: resp.data.User.Roles, token })
+                    this.SET_AUTH_SUCCESS({ userName: resp.data.data.User.UserName, userRoles: resp.data.data.User.Roles, token: resp.data.data.Token })
                     resolve()
                 })
                 .catch(err => {
                     this.SET_AUTH_LOGOUT()
-                    reject(err.response.data.message)
+                    reject(err.response.data.data.message)
                 })
         })
     }

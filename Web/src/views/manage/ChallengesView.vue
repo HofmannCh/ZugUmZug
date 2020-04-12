@@ -6,7 +6,11 @@
 import { Vue, Component } from "vue-property-decorator";
 
 @Component({})
-export default class MapView extends Vue {}
+export default class ChallengesView extends Vue {
+  constructor() {
+    super();
+  }
+}
 </script>
 
 <style lang="sass" scoped>

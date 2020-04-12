@@ -8,7 +8,8 @@ export function verifyToken(req: Request, res: Response, next: any): any {
     // No authentification
     if (req.path === "/auth/login"
         || req.path === "/auth/register"
-        || req.path === "/t") {
+        || req.path.startsWith("/group/")
+        || req.path.startsWith("/files/")) {
         return next()
     }
 

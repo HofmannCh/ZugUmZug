@@ -19,7 +19,7 @@ const routes = [
     name: 'about',
     component: () => import('../views/AboutView.vue'),
     meta: {
-      auth: true,
+      auth: false,
       title: 'Über'
     }
   },
@@ -41,30 +41,18 @@ const routes = [
     meta: {
       auth: true,
       title: 'Karte',
-      visibleFor: Role.Basis
+      visibleFor: Role.Basis | Role.Admin
     }
   },
   {
-    path: '/jokers',
-    name: 'jokers',
+    path: '/challenge',
+    name: 'solveChallenge',
     props: true, // for query params
-    component: () => import('../views/teams/JokersView.vue'),
+    component: () => import('../views/teams/SolveChallengeView.vue'),
     meta: {
       auth: true,
-      title: 'Jokers',
-      visibleFor: Role.Joker
-
-    }
-  },
-  {
-    path: '/challange',
-    name: 'solveChallange',
-    props: true, // for query params
-    component: () => import('../views/teams/SolveChallangeView.vue'),
-    meta: {
-      auth: true,
-      title: 'Challange lösen',
-      visibleFor: Role.SuperAdmin
+      title: 'Challenge lösen',
+      visibleFor: Role.Group
     }
   },
   {
@@ -75,7 +63,65 @@ const routes = [
     meta: {
       auth: true,
       title: 'Stationen',
-      visibleFor: (Role.Joker | Role.Basis)
+      visibleFor: Role.Group
+    }
+  },
+  // Manage / Masterdata
+  {
+    path: '/manage/jokers',
+    name: 'manageJokers',
+    props: true, // for query params
+    component: () => import('../views/manage/JokersView.vue'),
+    meta: {
+      auth: true,
+      title: 'Jokers',
+      visibleFor: Role.Joker | Role.Basis | Role.Admin
+
+    }
+  },
+  {
+    path: '/manage/challenges',
+    name: 'manageChallenge',
+    props: true, // for query params
+    component: () => import('../views/manage/ChallengesView.vue'),
+    meta: {
+      auth: true,
+      title: 'Challenges',
+      visibleFor: Role.Basis | Role.Admin
+
+    }
+  },
+  {
+    path: '/manage/groups',
+    name: 'manageGroups',
+    props: true, // for query params
+    component: () => import('../views/manage/GroupsView.vue'),
+    meta: {
+      auth: true,
+      title: 'Gruppen',
+      visibleFor: Role.Admin
+    }
+  },
+  {
+    path: '/manage/users',
+    name: 'manageUsers',
+    props: true, // for query params
+    component: () => import('../views/manage/UsersView.vue'),
+    meta: {
+      auth: true,
+      title: 'Accounts',
+      visibleFor: Role.Admin
+    }
+  },
+  {
+    path: '/manage/events',
+    name: 'manageEvents',
+    props: true, // for query params
+    component: () => import('../views/manage/JokersView.vue'),
+    meta: {
+      auth: true,
+      title: 'Events',
+      visibleFor: Role.SuperAdmin
     }
   }
 ]
@@ -98,11 +144,11 @@ router.beforeEach((to, from, next) => {
     next({
       path: '/login',
       query: { returnUrl: to.fullPath }
-    })
+    });
     return
   }
 
-  next()
+  next();
 })
 
 export default router

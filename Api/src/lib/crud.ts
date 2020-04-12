@@ -30,7 +30,7 @@ export function error(table: string, req: Request, res: Response) {
         for (const prop in err)
             data.error[prop] = err[prop];
 
-        return zuzError(res, new ZuzError("Crud" + (err!.message ? ": " + err.message : ""), data));
+        return zuzError(res, new ZuzError("Crud" + (err!.message ? ": " + err.message : ""), data, undefined, err));
     };
 };
 
@@ -51,7 +51,7 @@ export function crud(router: Router, table: string, toExclude?: number) {
 
     if (toExclude == undefined || ((toExclude & CrudRequests.CreateOrUpdate) != CrudRequests.CreateOrUpdate))
         router.post("/:id?", (req, res) => {
-            createOrUpdate(table, req.body, Number(req.params.id), req.session!.EventId).then(() => {
+            createOrUpdate(table, req.body, Number(req.params.id ?? req.body.Id), req.session!.EventId).then(() => {
                 return zuzJson(res);
             }).catch(error(table, req, res));
         })
@@ -71,6 +71,7 @@ export function get(table: string, id: number, eventId?: number) {
             : db.format("SELECT * FROM ?? WHERE ?? = ? AND ?? = ? LIMIT 1", [table, "Id", id, "EventId", eventId])
             , (err, rows: any[]) => {
                 if (err) rej(err);
+                else if(rows.length <= 0) rej(new ZuzError("Not found", undefined, 404))
                 else res(rows[0]);
                 return;
             });

@@ -1,15 +1,6 @@
 <template>
   <div id="content">
-    <div class="sbb-img">
-      <img
-        class="backgroundImage sbb"
-        src="../assets/sbb/SBB P DTZ S-Bahn Zue Richterswil.jpg"
-        alt="Background image"
-      />
-      <span>
-        <a href="https://sbb.ch/">© SBB CFF FFS</a>
-      </span>
-    </div>
+    <sbb-image-component :reqSrc="require('@/assets/sbb/SBB P DTZ S-Bahn Zue Richterswil.jpg')" class="sbb-img" />
     <form @submit="onSubmit">
       <div
         class="form-group"
@@ -48,33 +39,50 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { AuthModule } from "@/stores/modules/AuthModule";
+import SbbImageComponent from "../components/SbbImageComponent.vue";
+import { mapGetters } from "vuex";
 
-@Component
+@Component({
+  components: { SbbImageComponent },
+  computed: {
+    ...mapGetters(["isUserLoggedIn"])
+  }
+})
 export default class LoginView extends Vue {
+  private isUserLoggedIn!: boolean;
   private userName: string = "";
   private password: string = "";
 
   private alertText: string = "";
 
-  onSubmit(evt: any): void {
+  constructor() {
+    super();
+  }
+
+  private mounted() {
+    if (this.isUserLoggedIn) this.go();
+  }
+
+  private go() {
+    this.$router.push(
+      this.$route.query.returnUrl
+        ? { path: this.$route.query.returnUrl as string }
+        : { name: "home" }
+    );
+  }
+
+  private onSubmit(evt: any): void {
     evt.preventDefault();
-    this.alertText = "";
     AuthModule.Login({ userName: this.userName, password: this.password })
       .then(res => {
-        this.$router.push(
-          this.$route.query.returnUrl
-            ? { path: this.$route.query.returnUrl as string }
-            : { name: "home" }
-        );
+        this.go();
       })
-      .catch(err => {
-        this.alertText = err.message;
-      });
+      .catch(err => {});
   }
 }
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 
 #content
   position: absolute

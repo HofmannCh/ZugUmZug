@@ -6,5 +6,8 @@ module.exports = {
                 prependData: `@import "@/custom.sass"`
             }
         }
+    },
+    configureWebpack: {
+        devtool: 'source-map'
     }
 }

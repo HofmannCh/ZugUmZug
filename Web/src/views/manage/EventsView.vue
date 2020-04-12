@@ -6,9 +6,13 @@
 import { Vue, Component } from "vue-property-decorator";
 
 @Component({})
-export default class JokersView extends Vue {}
+export default class EventsView extends Vue {
+  constructor() {
+    super();
+  }
+}
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 
 </style>

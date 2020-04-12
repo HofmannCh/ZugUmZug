@@ -1,5 +1,8 @@
 import '@babel/polyfill'
 import 'mutationobserver-shim'
+
+import "jquery"
+
 import Vue from 'vue'
 
 import App from './App.vue'
@@ -16,3 +19,10 @@ new Vue({
   store,
   render: render => render(App)
 }).$mount('#app')
+
+import Toasted from 'vue-toasted';
+Vue.use(Toasted, {
+  router,
+  duration: 2000,
+  keepOnHover: true,
+})

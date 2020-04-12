@@ -8,6 +8,7 @@ node_modules
 *.local
 
 sessions/
+uploads/
 
 # Log files
 npm-debug.log*

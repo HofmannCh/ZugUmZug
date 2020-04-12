@@ -24,7 +24,7 @@ create table `Users` (
 create table `Groups` (
     `Id` int primary key auto_increment,
     `Name` varchar(20) not null,
-    `Uuid` text not null,
+    `Uuid` char(36) not null,
     `Description` text null,
     `Users` text not null,
     `BasisUserId` int not null, -- Person in base
@@ -44,7 +44,7 @@ create table `Challenges` (
 
 create table `ChallengesSolved` (
     `Id` int primary key auto_increment,
-    `Valid` bit not null,
+    `Valid` bit not null default 0,
     `GroupId` int not null,
     `ChallengeId` int not null,
     `UserId` int null, -- Person who signed up the challenge
@@ -55,7 +55,7 @@ create table `ChallengesSolved` (
 
 create table `Locations` (
     `Id` int primary key auto_increment,
-    `DateTime` DateTime not null,
+    `DateTime` DateTime not null default CURRENT_TIMESTAMP,
     `Lat` float not null,
     `Lng` float not null,
     `GroupId` int not null,
@@ -72,9 +72,10 @@ create table `ManualPoints` (
 
 create table `TrainStations` (
     `Id` int primary key auto_increment,
-    `DateTime` datetime not null,
-    `Image` varchar(255) null, -- todo and not null
-    `Valid` bit not null,
+    `DateTime` datetime not null default CURRENT_TIMESTAMP,
+    `Image` varchar(255) not null, -- path
+    `Notes` varchar(255) null,
+    `Valid` bit not null default 0,
     `GroupId` int not null,
     `UserId` int null, -- Person who signed up the challenge
     constraint `fk_TrainStations_GroupId` foreign key (`GroupId`) references `Groups`(Id),
@@ -85,7 +86,7 @@ create table `Jokers` (
     `Id` int primary key auto_increment,
     `Name` varchar(20) not null,
     `Description` text not null,
-    `From` DateTime null,
+    `From` DateTime not null,
     `Till` DateTime not null,
     `Lat` float not null,
     `Lng` float not null,

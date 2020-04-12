@@ -11,4 +11,8 @@ export default class ZuzError implements Error {
         this.data = data;
         this.status = status;
     }
+
+    public toString() : string {
+        return `${this.name}> ${this.message}`;
+    }
 }

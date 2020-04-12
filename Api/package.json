@@ -21,6 +21,7 @@
     "joi": "^14.3.1",
     "jsonwebtoken": "^8.5.1",
     "module-alias": "^2.2.2",
+    "multer": "^1.4.2",
     "mysql2": "^2.1.0",
     "reflect-metadata": "^0.1.13",
     "session-file-store": "^1.4.0",
@@ -39,7 +40,7 @@
     "nodemon": "^2.0.2",
     "ts-node": "^8.5.4",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^3.7.4"
+    "typescript": "^3.8.3"
   },
   "nodemonConfig": {
     "ignore": [

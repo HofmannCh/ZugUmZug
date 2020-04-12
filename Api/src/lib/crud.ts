@@ -2,7 +2,6 @@ import { Router, Request, Response } from "express";
 import db from "@lib/database";
 import ZuzError from "@/interfaces/ZuzError";
 import zuzJson, { zuzError } from "./responseHelper";
-import { QueryError } from "mysql2";
 
 export enum CrudRequests {
     GetAll = 1,
@@ -67,10 +66,9 @@ export function crud(router: Router, table: string, toExclude?: number) {
 
 export function get(table: string, id: number, eventId?: number) {
     return new Promise<object>((res, rej) => {
-        table = db.escapeId(table);
         db.execute(eventId == undefined
-            ? db.format("SELECT * FROM " + table + " WHERE ?? = ? LIMIT 1", ["Id", id])
-            : db.format("SELECT * FROM " + table + " WHERE ?? = ? AND ?? = ? LIMIT 1", ["Id", id, "EventId", eventId])
+            ? db.format("SELECT * FROM ?? WHERE ?? = ? LIMIT 1", [table, "Id", id])
+            : db.format("SELECT * FROM ?? WHERE ?? = ? AND ?? = ? LIMIT 1", [table, "Id", id, "EventId", eventId])
             , (err, rows: any[]) => {
                 if (err) rej(err);
                 else res(rows[0]);
@@ -81,10 +79,9 @@ export function get(table: string, id: number, eventId?: number) {
 
 export function getAll(table: string, eventId?: number) {
     return new Promise<object[]>((res, rej) => {
-        table = db.escapeId(table);
         db.execute(eventId == undefined
-            ? "SELECT * FROM " + table
-            : db.format("SELECT * FROM " + table + " WHERE ?? = ?", ["EventId", eventId])
+            ? db.format("SELECT * FROM ??", [table])
+            : db.format("SELECT * FROM ?? WHERE ?? = ?", [table, "EventId", eventId])
             , (err, rows: any[]) => {
                 if (err) rej(err);
                 else res(rows);
@@ -95,10 +92,9 @@ export function getAll(table: string, eventId?: number) {
 
 export function destory(table: string, id: number, eventId?: number) {
     return new Promise<void>((res, rej) => {
-        table = db.escapeId(table);
         db.execute(eventId == undefined
-            ? db.format("DELETE FROM " + table + " WHERE ?? = ?", ["Id", id])
-            : db.format("DELETE FROM " + table + " WHERE ?? = ? AND ?? = ?", ["Id", id, "EventId", eventId])
+            ? db.format("DELETE FROM ?? WHERE ?? = ?", [table, "Id", id])
+            : db.format("DELETE FROM ?? WHERE ?? = ? AND ?? = ?", [table, "Id", id, "EventId", eventId])
             , (err, rows: any[]) => {
                 if (err) rej(err);
                 else res();
@@ -109,12 +105,11 @@ export function destory(table: string, id: number, eventId?: number) {
 
 export function createOrUpdate(table: string, newData: any, id?: number, eventId?: number) {
     return new Promise<void>((res, rej) => {
-        table = db.escapeId(table);
         let isNew = !id || id <= 0;
 
         db.execute(eventId == undefined
-            ? db.format("SELECT * FROM " + table + " WHERE ?? = ? LIMIT ?", ["Id", id, isNew ? 0 : 1])
-            : db.format("SELECT * FROM " + table + " WHERE ?? = ? AND ?? = ? LIMIT ?", ["Id", id, "EventId", eventId, isNew ? 0 : 1])
+            ? db.format("SELECT * FROM ?? WHERE ?? = ? LIMIT ?", [table, "Id", id, isNew ? 0 : 1])
+            : db.format("SELECT * FROM ?? WHERE ?? = ? AND ?? = ? LIMIT ?", [table, "Id", id, "EventId", eventId, isNew ? 0 : 1])
             , (err, rows: any[], fields) => {
             if (err) {
                 rej(err);
@@ -127,7 +122,7 @@ export function createOrUpdate(table: string, newData: any, id?: number, eventId
             let countNew = 0;
             for (const f of fields.filter(x => x.name !== "Id")) {
                 const val = newData[f.name];
-                if (!val) continue;
+                if (val == undefined) continue;
                 updateBody[f.name] = val;
                 countNew++;
             }
@@ -138,7 +133,7 @@ export function createOrUpdate(table: string, newData: any, id?: number, eventId
             }
 
             if (isNew) {
-                let query = "INSERT INTO " + table + " (";
+                let query = "INSERT INTO ?? (";
                 for (const p in updateBody) {
                     query += db.escapeId(p) + ", ";
                 }
@@ -148,19 +143,19 @@ export function createOrUpdate(table: string, newData: any, id?: number, eventId
                 }
                 query = query.substring(0, query.length - 2) + ")";
 
-                db.execute(query, [], (err, rows: any[]) => {
+                db.execute(db.format(query, [table]), (err, rows: any[]) => {
                     if (err) rej(err);
                     else res();
                     return;
                 });
             } else {
-                let query = "UPDATE " + table + " SET ";
+                let query = "UPDATE ?? SET ";
                 for (const p in updateBody) {
                     query += db.escapeId(p) + " = " + db.escape(updateBody[p]) + ", ";
                 }
                 query = query.substring(0, query.length - 2);
 
-                db.execute(db.format(query + " WHERE ?", { "Id": id }), (err, rows: any[]) => {
+                db.execute(query + " WHERE ?? = ?", [table, "Id", id], (err, rows: any[]) => {
                     if (err) rej(err);
                     else res();
                     return;

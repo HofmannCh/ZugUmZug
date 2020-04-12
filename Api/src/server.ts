@@ -4,8 +4,7 @@ import * as dotenv from "dotenv";
 // DotEnv init
 dotenv.config()
 
-import express, { Request, Response } from "express"
-import { verifyToken, auth } from "@lib/authentication"
+import express, { NextFunction, Request, Response } from "express"
 
 const app: express.Application = express()
 
@@ -48,35 +47,37 @@ if (process.env.ENVIRONMEN! == "Prod") {
 app.use(Session(sessionOptions));
 
 // Authentifcation
-app.use(verifyToken)
-
-// Exception handling
-app.use((err: any, req: Request, res: Response, next: any) => {
-    zuzError(res, err);
-})
+import { verifyToken, auth } from "@lib/authentication"
+app.use(verifyToken);
 
 // Routes
-import { readdirSync, readFileSync } from "fs";
-import { dirname } from "path";
-import { Role } from './interfaces/UserRole';
-import { encode } from 'punycode';
-import ZuzError from './interfaces/ZuzError';
-import { Err } from 'joi';
-import zuzJson, { zuzError } from './lib/responseHelper';
-for (const name of readdirSync(dirname(require("module")._resolveFilename("@r/auth")))) {
-    const noEndingName = name.slice(0, name.lastIndexOf("."));
-    app.use("/" + noEndingName, require("@r/" + noEndingName).default);
-}
+import { readdirSync, existsSync, mkdirSync } from 'fs';
+if (!existsSync(process.env.FILE_UPLOAD_BASE_URL!))
+    mkdirSync(process.env.FILE_UPLOAD_BASE_URL!);
+app.use("/files", express.static(process.env.FILE_UPLOAD_BASE_URL!));
+
+app.use("/auth", require("@r/auth").default);
+app.use("/trainstation", require("@r/trainstation").default);
+
+// Masterdata
+app.use("/manage/challenge", require("@r/manage/challenge").default);
+app.use("/manage/event", require("@r/manage/event").default);
+app.use("/manage/group", require("@r/manage/group").default);
+app.use("/manage/joker", require("@r/manage/joker").default);
+app.use("/manage/user", require("@r/manage/user").default);
 
 
 // Shit and test
+import zuzJson, { zuzError } from '@lib/responseHelper';
+import { Role } from '@if/UserRole';
 app.get("/", (req: Request, res: Response) => {
     req.session!.counter = (req.session!.counter > -1 ? req.session!.counter + 1 : 0);
-    res.json({
+    return zuzJson(res, {
         Test: "yay2",
-        c: req.session!.counter
+        c: req.session!.counter,
+        p: process.env
     })
-})
+});
 
 app.get("/admin/session", auth(Role.SuperAdmin), (req: Request, res: Response) => {
     const result: any = {};
@@ -88,13 +89,19 @@ app.get("/admin/session", auth(Role.SuperAdmin), (req: Request, res: Response) =
             MySession: req.session,
             AllSessions: result
         });
-    })
+    });
 });
 
 app.get("/admin/session/clear", auth(Role.SuperAdmin), (req: Request, res: Response) => {
     sessionStore.clear((err) => {
-        return res.json(err);
+        return zuzJson(res, err, !!err)
     });
+});
+
+// Exception handling
+import ZuzError from '@if/ZuzError';
+app.use((err: Error | ZuzError, req: Request, res: Response, next: NextFunction) => {
+    zuzError(res, err);
 });
 
 app.listen(process.env.PORT, () => console.log(`Start listenning on Port ${process.env.PORT}`))

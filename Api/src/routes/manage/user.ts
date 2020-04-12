@@ -9,7 +9,7 @@ import zuzJson from "@/lib/responseHelper";
 const router: Router = Router()
 const TABLE_NAME: string = "Users";
 
-router.use(authOr(Role.SuperUser))
+router.use(authOr(Role.Admin))
 
 crud(router, TABLE_NAME, CrudRequests.CreateOrUpdate);
 

@@ -6,7 +6,7 @@ import { Role } from "@/interfaces/UserRole";
 const router: Router = Router()
 const TABLE_NAME: string = "Jokers";
 
-router.use(authOr(Role.Basis | Role.SuperUser));
+router.use(authOr(Role.Basis | Role.Admin));
 
 crud(router, TABLE_NAME);
 

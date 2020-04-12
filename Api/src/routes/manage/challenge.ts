@@ -4,9 +4,9 @@ import { authOr } from "@/lib/authentication";
 import { Role } from "@/interfaces/UserRole";
 
 const router: Router = Router()
-const TABLE_NAME: string = "Groups";
+const TABLE_NAME: string = "Challenges";
 
-router.use(authOr(Role.Basis | Role.SuperUser));
+router.use(authOr(Role.Basis | Role.Admin));
 
 crud(router, TABLE_NAME);
 

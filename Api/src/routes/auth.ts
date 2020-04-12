@@ -11,8 +11,6 @@ const router: Router = Router()
 
 router.post("/login", (req, res) => {
     const loginUser = loginRequestSchema.validate(req.body)
-    if (loginUser.error)
-        throw new ZuzError(loginUser.error.message, loginUser.error, 404)
 
     const PASSWORD_HASH_SECRET: jwt.Secret = process.env.PASSWORD_HASH_SECRET || 'secret-pw';
     const pwHash = createHmac("sha256", PASSWORD_HASH_SECRET)
@@ -22,10 +20,10 @@ router.post("/login", (req, res) => {
     delete req.session!.User;
     delete req.session!.EventId;
 
-    db.execute("SELECT UserName, Roles, EventId FROM Users WHERE UserName = ? AND PasswordHash = ? LIMIT 1", [loginUser.value.UserName, pwHash], (err: any, rows: any[]) => {
+    db.execute("SELECT ??, ??, ?? FROM ?? WHERE ?? = ? AND ?? = ? LIMIT 1", ["UserName", "Roles", "EventId", "Users", "UserName", loginUser.value.UserName, "PasswordHash", pwHash], (err: any, rows: any[]) => {
         const user: any = rows[0];
         if (user == null)
-        throw new ZuzError(`User "${loginUser.value.UserName}" not found witn the given password`, undefined, 404)
+            throw new ZuzError(`User "${loginUser.value.UserName}" not found witn the given password`, undefined, 404)
 
         const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || 'secret-jwt';
         const userObj: User = { UserName: user.UserName as string, Roles: user.Roles as number, EventId: user.EventId as number };

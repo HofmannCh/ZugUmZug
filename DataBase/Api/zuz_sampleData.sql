@@ -28,14 +28,14 @@ insert into `Users` values -- Pw: 123456 (Hash)
 (8, 'SuperAdmin',   '8dfa7619e2665dd61352fb9d619ce990678d52b0839d1d0c81f97a8664e843f1', b'00000000000000000000000000001000', null);
 
 insert into `Groups` values
-(1, 'GroupName1', '-- Uuid --', 'aaa', '[{name: "Tom11"},{name: "Tom12"},{name: Tom13}]', 1, 1),
-(2, 'GroupName2', '-- Uuid --', 'bbb', '[{name: "Tom21"}]', 1, 1 ),
-(3, 'GroupName3', '-- Uuid --', null,  '[{name: "Tom31"},{name: "Tom32"},{name: Tom33},{name: Tom34}]', 2, 1 ),
-(4, 'GroupName4', '-- Uuid --', null,  '[{name: "Tom41"},{name: "Tom42"}]', 2, 1 ),
-(5, 'GroupName5', '-- Uuid --', null,  '[{name: "Tom51"},{name: "Tom52"}]', 2, 1 ),
-(6, 'GroupName6', '-- Uuid --', 'fff', '[]', 3, 1 ),
-(7, 'GroupName7', '-- Uuid --', null,  '[{name: "Tom61"},{name: "Tom62"}]', 4, 2 ),
-(8, 'GroupName8', '-- Uuid --', null,  '[{name: "Tom71"},{name: "Tom72"}]', 4, 2 );
+(1, 'GroupName1', 'cb8d9076-4406-423c-8dc5-7a23bbc3508d', 'aaa', '[{name: "Tom11"},{name: "Tom12"},{name: Tom13}]', 1, 1),
+(2, 'GroupName2', 'cc49f4db-f4ba-4451-90d2-7a64b5621286', 'bbb', '[{name: "Tom21"}]', 1, 1 ),
+(3, 'GroupName3', 'a83f4d80-116d-4c6a-8167-061430fa2380', null,  '[{name: "Tom31"},{name: "Tom32"},{name: Tom33},{name: Tom34}]', 2, 1 ),
+(4, 'GroupName4', '3ee0574e-832f-454f-8f7e-9286e9acfef3', null,  '[{name: "Tom41"},{name: "Tom42"}]', 2, 1 ),
+(5, 'GroupName5', 'ea782d02-cacb-45b3-b0c9-35df756c5681', null,  '[{name: "Tom51"},{name: "Tom52"}]', 2, 1 ),
+(6, 'GroupName6', '0132ad2c-02de-4486-bec0-21735aed2ac1', 'fff', '[]', 3, 1 ),
+(7, 'GroupName7', 'c1e87b78-f9d6-4e34-8357-11c8b89bbbcb', null,  '[{name: "Tom61"},{name: "Tom62"}]', 4, 2 ),
+(8, 'GroupName8', '7ddf7086-8f6a-490d-9065-6058b8cc33d7', null,  '[{name: "Tom71"},{name: "Tom72"}]', 4, 2 );
 
 insert into `Challenges` values
 (1, 'Challenge1', 'Description 1', 100, 1),
@@ -73,9 +73,9 @@ insert into `ManualPoints` values
 (3, 300, 'WeilGeil 300', 2);
 
 insert into `TrainStations` values
-(1, '2019-11-14 10:01:02', b'00000001', 1, 1, 1),
-(2, '2019-11-14 11:01:02', b'00000010', 0, 1, null),
-(3, '2019-11-14 12:01:02', b'00000011', 1, 2, 1);
+(1, '2019-11-14 10:01:02', "https://via.placeholder.com/720x480?text=720x480%201", "TestNotes", 1, 1, 1),
+(2, '2019-11-14 11:01:02', "https://via.placeholder.com/720x480?text=720x480%202", null, 0, 1, null),
+(3, '2019-11-14 12:01:02', "https://via.placeholder.com/720x480?text=720x480%203", null, 1, 2, 1);
 
 insert into `Jokers` values
 (1, 'Jokes1', 'Jokes 1 Rules ...', '2019-11-14 12:00:00', '2019-11-14 13:00:00', 47.32094, 7.90787, 0, 1000  ,  5, 1),

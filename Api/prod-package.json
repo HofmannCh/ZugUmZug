@@ -54,7 +54,6 @@
   },
   "_moduleAliases": {
     "@": "",
-    "@m": "models",
     "@r": "routes",
     "@lib": "lib",
     "@if": "interfaces",

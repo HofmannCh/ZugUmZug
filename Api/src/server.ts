@@ -1,3 +1,5 @@
+console.log(`Start Application with PID ${process.pid} and PPID ${process.ppid}`);
+
 import 'module-alias/register';
 import * as dotenv from "dotenv";
 

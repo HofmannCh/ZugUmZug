@@ -51,10 +51,14 @@ jobs:
       run: |
         cd ./Api/
         rm -rf ./dist/
+        ls -Alh
         npm ci
         npm run build
+        ls -Alh
         cp ./prod-package.json ./dist/package.json
         cd ./dist/
+        ls -Alh
+        cat ./package.json
         npm install --only-production
       
     - name: FTP-Deploy-Action

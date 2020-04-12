@@ -1,6 +1,6 @@
 {
   "name": "train_by_train_api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Backend/Api server for the TrainByTrain app",
   "keywords": [],
   "author": "Lukas Hofmann",

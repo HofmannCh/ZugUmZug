@@ -1,5 +1,5 @@
 import { Request } from "express";
-import * as Joi from "joi";
+import Joi from "@hapi/joi";
 import db from "./database";
 import { zuzError } from "./responseHelper";
 import ZuzError from "@/interfaces/ZuzError";

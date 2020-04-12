@@ -13,6 +13,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         ref: deploy-prod
+
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
@@ -25,16 +26,13 @@ jobs:
         npm run build
       
     - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@2.0.0
-      env:
-        FTP_SERVER: ${{ secrets.FTP_SERVER }}
-        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        METHOD: sftp
-        POST: 22
-        LOCAL_DIR: ./Web/dist
-        REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR_WEB }}
-        ARGS: --delete --exclude .env
+      uses: SamKirkland/FTP-Deploy-Action@3.0.0
+      with:
+        ftp-server: ${{ secrets.FTP_SERVER }}
+        ftp-username: ${{ secrets.FTP_USERNAME }}
+        ftp-password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./Web/dist
+        git-ftp-args: --all --remote-root ${{ secrets.FTP_REMOTE_DIR_WEB }}
       
   DeployApi:
     name: DeployApi
@@ -43,6 +41,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         ref: deploy-prod
+
     - name: Use Node.js 12.x
       uses: actions/setup-node@v1
       with:
@@ -59,13 +58,10 @@ jobs:
         npm install --only-production
       
     - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@2.0.0
-      env:
-        FTP_SERVER: ${{ secrets.FTP_SERVER }}
-        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        METHOD: sftp
-        POST: 22
-        LOCAL_DIR: ./Api/dist
-        REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR_API }}
-        ARGS: --delete --exclude .env
+      uses: SamKirkland/FTP-Deploy-Action@3.0.0
+      with:
+        ftp-server: ${{ secrets.FTP_SERVER }}
+        ftp-username: ${{ secrets.FTP_USERNAME }}
+        ftp-password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./Api/dist
+        git-ftp-args: --all --remote-root ${{ secrets.FTP_REMOTE_DIR_API }}

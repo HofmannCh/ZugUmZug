@@ -58,8 +58,8 @@ jobs:
         npm run build
         cp ./prod-package.json ./dist/package.json
         cd ./dist/
-        cat ./package.json
-        npm install --only-production
+        rm -rf ./node_modules/
+        npm install --only=production
       
     - name: FTP-Deploy-Action
       uses: SamKirkland/FTP-Deploy-Action@2.0.0

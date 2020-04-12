@@ -32,7 +32,7 @@ jobs:
         ftp-username: ${{ secrets.FTP_USERNAME }}
         ftp-password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./Web/dist
-        git-ftp-args: --all --remote-root ${{ secrets.FTP_REMOTE_DIR_WEB }}
+        git-ftp-args: --insecure --all --remote-root ${{ secrets.FTP_REMOTE_DIR_WEB }}
       
   DeployApi:
     name: DeployApi
@@ -64,4 +64,4 @@ jobs:
         ftp-username: ${{ secrets.FTP_USERNAME }}
         ftp-password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./Api/dist
-        git-ftp-args: --all --remote-root ${{ secrets.FTP_REMOTE_DIR_API }}
+        git-ftp-args: --insecure --all --remote-root ${{ secrets.FTP_REMOTE_DIR_API }}

@@ -1,1 +1,4 @@
-dist/
+Web/dist/
+Web/dist/*
+Api/dist/
+Api/dist/*

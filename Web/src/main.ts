@@ -5,6 +5,11 @@ import "jquery"
 
 import Vue from 'vue'
 
+// Fucking ugly, but I didn't found better solution
+import moment from 'moment'
+Vue.prototype.moment = moment;
+(Window.prototype as any).moment = moment;
+
 import App from './App.vue'
 import router from './router'
 

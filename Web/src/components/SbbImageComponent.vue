@@ -36,9 +36,10 @@ span
   position: absolute
   bottom: 0
   right: 0
-  padding: 2px 5px
+  padding: 0px 5px
   background-color: $gray-600
 
   a
     color: $black !important
+    font-size: 0.8rem
 </style>

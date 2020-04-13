@@ -1,5 +1,5 @@
 <template>
-  <div id="content">
+  <div id="content" class="container-fluid">
     <sbb-image-component :reqSrc="require('@/assets/sbb/SBB P DTZ S-Bahn Zue Richterswil.jpg')" class="sbb-img" />
     <form @submit="onSubmit">
       <div

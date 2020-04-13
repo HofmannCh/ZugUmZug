@@ -1,7 +1,7 @@
 <template>
-  <div class="home py-3">
-    <div class="container">
-      <sbb-image-component :reqSrc="require('@/assets/sbb/SBB Weihnachtszug.jpg')" class="mx-auto col-md-12 col-lg-8 mx-auto"/>
+  <div class="container">
+    <div class="home py-3 col-md-12 col-lg-8 mx-auto">
+      <sbb-image-component :reqSrc="require('@/assets/sbb/SBB Weihnachtszug.jpg')"/>
     </div>
     <hello-world-component msg="Herzlich Willkommen!" class="text-left mt-2" />
     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos illum fugiat facere ullam ipsum quis ab eligendi, blanditiis autem voluptate nesciunt earum doloribus placeat vitae? Ea doloremque dolores atque ullam?</p>

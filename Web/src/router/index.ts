@@ -44,28 +44,6 @@ const routes = [
       visibleFor: Role.Basis | Role.Admin
     }
   },
-  {
-    path: '/challenge',
-    name: 'solveChallenge',
-    props: true, // for query params
-    component: () => import('../views/teams/SolveChallengeView.vue'),
-    meta: {
-      auth: true,
-      title: 'Challenge lösen',
-      visibleFor: Role.Group
-    }
-  },
-  {
-    path: '/stations',
-    name: 'submitStations',
-    props: true, // for query params
-    component: () => import('../views/teams/SubmitStationView.vue'),
-    meta: {
-      auth: true,
-      title: 'Stationen',
-      visibleFor: Role.Group
-    }
-  },
   // Manage / Masterdata
   {
     path: '/manage/jokers',
@@ -123,7 +101,40 @@ const routes = [
       title: 'Events',
       visibleFor: Role.SuperAdmin
     }
-  }
+  },
+  {
+    path: '/teams/groups',
+    name: 'teamsGroups',
+    props: true, // for query params
+    component: () => import('../views/teams/GroupsView.vue'),
+    meta: {
+      auth: true,
+      title: 'Gruppen',
+      visibleFor: Role.Group
+    }
+  },
+  {
+    path: '/teams/stations',
+    name: 'teamsSubmitStations',
+    props: true, // for query params
+    component: () => import('../views/teams/SubmitStationView.vue'),
+    meta: {
+      auth: true,
+      title: 'Stationen',
+      visibleFor: Role.Group
+    }
+  },
+  {
+    path: '/teams/challenge',
+    name: 'teamsSolveChallenge',
+    props: true, // for query params
+    component: () => import('../views/teams/SolveChallengeView.vue'),
+    meta: {
+      auth: true,
+      title: 'Challenge lösen',
+      visibleFor: Role.Group
+    }
+  },
 ]
 
 const router = new VueRouter({

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import Vue from 'vue'
 const api = axios.create({
-    baseURL: process.env.VUE_APP_API_BASE_URL,
+    baseURL: process.env.VUE_APP_API_BASE_URL ?? "https://api-zuz.hofi.dev/",
     timeout: 5000,
     headers: {
         'Content-Type': 'application/json'

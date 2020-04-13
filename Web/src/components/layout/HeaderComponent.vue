@@ -74,30 +74,23 @@ export default class HeaderComponent extends Vue {
         isActive: x.name === this.$route.name
       };
     };
-    console.log((this.$router as any).options.routes);
-    console.log([this.isUserLoggedIn, this.userRoles, this.userName]);
     for (const route of (this.$router as any).options.routes.filter(
       (x: any) => x.name !== "login"
     )) {
       // route doesn't exists
-      console.log(route);
       if (!route) {
-        console.log(route.meta.title + " 0");
         continue;
       }
       // No auth required
       else if (!route.meta || !route.meta.auth) {
-        console.log(route.meta.title + " 1");
         ret.push(p(route));
       }
       // Auth is required, but user is not logged in
       else if (route.meta.auth && !this.isUserLoggedIn) {
-        console.log(route.meta.title + " 2");
         continue;
       }
       // Check if auth is valid
       else if (!route.meta.visibleFor) {
-        console.log(route.meta.title + " 3");
         continue;
       }
       // Check roles
@@ -105,12 +98,10 @@ export default class HeaderComponent extends Vue {
         (this.userRoles & route.meta.visibleFor) > 0 ||
         (this.userRoles & Role.SuperAdmin) == Role.SuperAdmin
       ) {
-        console.log(route.meta.title + " 4");
         ret.push(p(route));
       }
       // This shouldn't be called
       else {
-        console.log(route.meta.title + " 5");
         continue;
       }
     }

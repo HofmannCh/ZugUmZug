@@ -2,27 +2,52 @@ import * as jwt from "jsonwebtoken"
 import User from "@/interfaces/User"
 import { Role } from "@if/UserRole"
 import { Request, Response } from "express";
+import db from "./database";
+import { zuzError } from "./responseHelper";
+import ZuzError from "@/interfaces/ZuzError";
 
 // Verify Token
 export function verifyToken(req: Request, res: Response, next: any): any {
+    
     // No authentification
-    if (req.path === "/auth/login"
-        || req.path === "/auth/register"
-        || req.path.startsWith("/group/")
-        || req.path.startsWith("/files/")) {
+    if (req.path === "/auth/login" || req.path === "/auth/register") {
         return next()
     }
 
-    const bearerHeader: string = req.header("authorization")!;
+    // bearer
+    let bearerToken: string | undefined = req.session!.Token || undefined;
+    if(!bearerToken){
+        const bearerHeader = req.header("Authorization");
+        bearerToken = bearerHeader?.substring(7); // "Bearer " = 7 characters
+    }
 
-    if (bearerHeader && bearerHeader.startsWith("Bearer ")) {
-        const bearerToken = bearerHeader.substring(7); // "Bearer " = 7 characters
-
+    if (bearerToken) {
         const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || 'secret-jwt';
 
         try {
-            jwt.verify(bearerToken, JWT_SECRET)
-            return next()
+            const data: any = jwt.verify(bearerToken, JWT_SECRET)
+
+            // restore defaults
+            if (!req.session!.UserName
+                || !req.session!.Roles
+                || !req.session!.EventId
+                || !req.session!.Token) {
+                if (data.UserId) {
+                    db.execute(db.format("SELECT ??, ??, ?? FROM ?? WHERE ?? = ? LIMIT 1", ["UserName", "Roles", "EventId", "Users", "Id", data.UserId]), (err: any, rows: any[]) => {
+                        if (err) return zuzError(res, err);
+                        else if (rows.length <= 0) return zuzError(res, new ZuzError(`User with Id ${data.UserId} not found`, undefined, 404));
+                        const user: any = rows[0];
+
+                        req.session!.UserAgent = req.headers["user-agent"];
+                        req.session!.UserName = user.UserName;
+                        req.session!.Roles = user.Roles;
+                        req.session!.EventId = user.EventId;
+                        req.session!.Token = bearerToken;
+                    });
+                }
+            }
+
+            return next();
         } catch (err) {
             return res.status(403).json({
                 message: "Forbidden, problems with authentification",
@@ -44,14 +69,13 @@ export function verifyToken(req: Request, res: Response, next: any): any {
  */
 export function auth(flagSet: number) {
     return (req: Request, res: Response, next: any) => {
-        const tokenUser: User = req.session!.User;
-
-        if (tokenUser) {
+        const roles: number = req.session!.Roles as number;
+        if (roles) {
             // SuperAdmin
-            if (tokenUser.Roles as number & Role.SuperAdmin === Role.SuperAdmin)
+            if ((roles & Role.SuperAdmin) === Role.SuperAdmin)
                 return next()
 
-            if (flagSet === (flagSet & tokenUser.Roles as number))
+            if (flagSet === (flagSet & roles as number))
                 return next();
         }
         return res.status(403).json({
@@ -66,14 +90,13 @@ export function auth(flagSet: number) {
  */
 export function authOr(flagSet: number) {
     return (req: Request, res: Response, next: any) => {
-        const tokenUser: User = req.session!.User;
-
-        if (tokenUser) {
+        const roles: number = req.session!.Roles as number;
+        if (roles) {
             // SuperAdmin
-            if (tokenUser.Roles as number & Role.SuperAdmin === Role.SuperAdmin)
+            if ((roles & Role.SuperAdmin) === Role.SuperAdmin)
                 return next()
 
-            if (0 < (flagSet & tokenUser.Roles as number))
+            if (0 < (flagSet & roles))
                 return next();
         }
 

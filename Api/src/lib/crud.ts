@@ -35,29 +35,22 @@ export function error(table: string, req: Request, res: Response) {
 };
 
 export function crud(router: Router, table: string, toExclude?: number) {
-    if (toExclude == undefined || ((toExclude & CrudRequests.GetAll) != CrudRequests.GetAll))
-        router.get("/", (req, res) => {
-            getAll(table, req.session!.EventId).then((o) => {
-                return zuzJson(res, o);
-            }).catch(error(table, req, res));
-        })
-
     if (toExclude == undefined || ((toExclude & CrudRequests.GetById) != CrudRequests.GetById))
-        router.get("/:id", (req, res) => {
+        router.get("/r/:id", (req, res) => {
             get(table, Number(req.params.id), req.session!.EventId).then((o) => {
                 return zuzJson(res, o, !!o, o ? 200 : 404);
             }).catch(error(table, req, res));
         })
 
     if (toExclude == undefined || ((toExclude & CrudRequests.CreateOrUpdate) != CrudRequests.CreateOrUpdate))
-        router.post("/:id?", (req, res) => {
+        router.post("/cou/:id?", (req, res) => {
             createOrUpdate(table, req.body, Number(req.params.id ?? req.body.Id), req.session!.EventId).then(() => {
                 return zuzJson(res);
             }).catch(error(table, req, res));
         })
 
     if (toExclude == undefined || ((toExclude & CrudRequests.Destroy) != CrudRequests.Destroy))
-        router.delete("/:id", (req, res) => {
+        router.delete("/d/:id", (req, res) => {
             destory(table, Number(req.params.id), req.session!.EventId).then(() => {
                 return zuzJson(res);
             }).catch(error(table, req, res));

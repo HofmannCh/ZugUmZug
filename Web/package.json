@@ -30,7 +30,7 @@
   "devDependencies": {
     "@babel/polyfill": "^7.7.0",
     "@types/bootstrap": "^4.3.2",
-    "@types/node": "^13.1.2",
+    "@types/node": "^13.11.1",
     "@types/tabulator-tables": "^4.6.0",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-eslint": "^4.1.0",

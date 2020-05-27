@@ -24,7 +24,6 @@ class Auth extends VuexModule implements IAuthState {
         localStorage.setItem('authToken', this.token)
         localStorage.setItem('userName', this.userName)
         localStorage.setItem('userRoles', this.userRoles + "")
-        api.defaults.headers.common['Authorization'] = this.token
     }
 
     @Mutation
@@ -36,7 +35,6 @@ class Auth extends VuexModule implements IAuthState {
         localStorage.removeItem('authToken')
         localStorage.removeItem('userName')
         localStorage.removeItem('userRoles')
-        delete api.defaults.headers.common['Authorization']
     }
 
     // Actions
@@ -46,7 +44,7 @@ class Auth extends VuexModule implements IAuthState {
             this.Logout()
             api.post("/auth/login", { UserName: data.userName, Password: data.password })
                 .then(resp => {
-                    this.SET_AUTH_SUCCESS({ userName: resp.data.data.User.UserName, userRoles: resp.data.data.User.Roles, token: resp.data.data.Token })
+                    this.SET_AUTH_SUCCESS({ userName: resp.data.data.UserName, userRoles: resp.data.data.Roles, token: resp.data.data.Token })
                     resolve()
                 })
                 .catch(err => {

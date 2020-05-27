@@ -17,27 +17,43 @@ router.post("/login", (req, res) => {
         .update(loginUser.value.Password)
         .digest("hex");
 
-    delete req.session!.User;
+    req.session!.UserAgent = req.headers["user-agent"];
+    delete req.session!.UserName;
+    delete req.session!.Roles;
     delete req.session!.EventId;
+    delete req.session!.Token;
 
-    db.execute(db.format("SELECT ??, ??, ?? FROM ?? WHERE ?? = ? AND ?? = ? LIMIT 1", ["UserName", "Roles", "EventId", "Users", "UserName", loginUser.value.UserName, "PasswordHash", pwHash]), (err: any, rows: any[]) => {
-        if(err) return zuzError(res, err);
+    db.execute(db.format("SELECT ??, ??, ??, ?? FROM ?? WHERE ?? = ? AND ?? = ? LIMIT 1", ["Id", "UserName", "Roles", "EventId", "Users", "UserName", loginUser.value.UserName, "PasswordHash", pwHash]), (err: any, rows: any[]) => {
+        if (err) return zuzError(res, err);
         else if (rows.length <= 0) return zuzError(res, new ZuzError(`User "${loginUser.value.UserName}" not found witn the given password`, undefined, 404));
         const user: any = rows[0];
 
         const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET || 'secret-jwt';
-        const userObj: User = { UserName: user.UserName as string, Roles: user.Roles as number, EventId: user.EventId as number };
-        req.session!.User = userObj;
-        req.session!.EventId = userObj.EventId;
+        req.session!.UserName = user.UserName;
+        req.session!.Roles = user.Roles as number;
+        req.session!.EventId = user.EventId;
         try {
-            const token: string = jwt.sign({ userObj }, JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION })
+            const token: string = jwt.sign({ UserId: user.Id }, JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION })
+            req.session!.Token = token;
             return zuzJson(res, {
-                User: userObj,
-                Token: "Bearer " + token
+                UserName: req.session!.UserName,
+                Roles: req.session!.Roles,
+                Token: token
             });
         } catch (err) {
             return zuzError(res, new ZuzError(err.message, err))
         }
+    });
+})
+
+router.post("/logout", (req, res) => {
+    delete req.session!.UserName;
+    delete req.session!.Roles;
+    delete req.session!.EventId;
+    delete req.session!.Token;
+
+    return zuzJson(res, {
+        Message: "Logout successful"
     });
 })
 

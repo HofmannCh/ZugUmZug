@@ -2,6 +2,8 @@ console.log(`Start Application with PID ${process.pid} and PPID ${process.ppid}`
 
 import 'module-alias/register';
 import * as dotenv from "dotenv";
+import { resolve } from 'url';
+import { uuid } from 'uuidv4';
 
 // DotEnv init
 dotenv.config()
@@ -19,23 +21,32 @@ db.connect((err) => {
 
 // Middleware
 // Allow origin access
-app.use((req: Request, res: Response, next: any) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-})
+app.use(require("cors")({
+    origin: function (origin: any, callback: any) {
+        if (process.env.CORS_ALLOWED === "all"
+            || process.env.CORS_ALLOWED
+            && process.env.CORS_ALLOWED.split(";").includes(origin)) {
+            return callback(null, true);
+        } else {
+            return callback(new Error('Not allowed by CORS'), false)
+        }
+    },
+    credentials: true
+}));
 
 // Json body
 app.use(express.json({
-    strict: false,
+    strict: false
 }));
 
 // Session
 import Session from "express-session";
 import SessionFileStore from "session-file-store";
-const SESSIONS_PATH = "sessions";
-const sessionStore = new (SessionFileStore(Session))({ path: SESSIONS_PATH });
+const sessionStore = new (SessionFileStore(Session))({ path: process.env.SESSIONS_PATH!, ttl: 604800 }); // 604800 -> One week in seconds
 const sessionOptions: Session.SessionOptions = {
+    genid: (req) => {
+        return uuid();
+    },
     secret: process.env.SESSION_SECRET!,
     resave: false,
     saveUninitialized: true,
@@ -86,14 +97,12 @@ app.get("/", (req: Request, res: Response) => {
 
 app.get("/admin/session", auth(Role.SuperAdmin), (req: Request, res: Response) => {
     const result: any = {};
-    for (const sessionFile of readdirSync(SESSIONS_PATH)) {
-        result[sessionFile] = require(SESSIONS_PATH + "/" + sessionFile);
+    for (const sessionFile of readdirSync(process.env.SESSIONS_PATH!)) {
+        result[sessionFile] = require(resolve(process.env.SESSIONS_PATH!, sessionFile));
     }
-    sessionStore.length((err, data) => {
-        return res.json({
-            MySession: req.session,
-            AllSessions: result
-        });
+    return res.json({
+        MySession: req.session,
+        AllSessions: result
     });
 });
 

@@ -34,24 +34,27 @@ export function error(table: string, req: Request, res: Response) {
     };
 };
 
-export function crud(router: Router, table: string, toExclude?: number) {
+export function crud(router: Router, table: string, toExclude?: number, useEventId: boolean = false, alterModels?: (any:any[]) => any[]) {
     if (toExclude == undefined || ((toExclude & CrudRequests.GetById) != CrudRequests.GetById))
         router.get("/r/:id", (req, res) => {
-            get(table, Number(req.params.id), req.session!.EventId).then((o) => {
+            get(table, Number(req.params.id), useEventId ? req.session!.EventId : undefined).then((o) => {
+                const ao = alterModels ? alterModels([o]) : [o];
+                if(ao?.length)
+                    o = ao[0];
                 return zuzJson(res, o, !!o, o ? 200 : 404);
             }).catch(error(table, req, res));
         })
 
     if (toExclude == undefined || ((toExclude & CrudRequests.CreateOrUpdate) != CrudRequests.CreateOrUpdate))
         router.post("/cou/:id?", (req, res) => {
-            createOrUpdate(table, req.body, Number(req.params.id ?? req.body.Id), req.session!.EventId).then(() => {
+            createOrUpdate(table, req.body, Number(req.params.id ?? req.body.Id), useEventId ? req.session!.EventId : undefined).then(() => {
                 return zuzJson(res);
             }).catch(error(table, req, res));
         })
 
     if (toExclude == undefined || ((toExclude & CrudRequests.Destroy) != CrudRequests.Destroy))
         router.delete("/d/:id", (req, res) => {
-            destory(table, Number(req.params.id), req.session!.EventId).then(() => {
+            destory(table, Number(req.params.id), useEventId ? req.session!.EventId : undefined).then(() => {
                 return zuzJson(res);
             }).catch(error(table, req, res));
         })
@@ -148,8 +151,7 @@ export function createOrUpdate(table: string, newData: any, id?: number, eventId
                     query += db.escapeId(p) + " = " + db.escape(updateBody[p]) + ", ";
                 }
                 query = query.substring(0, query.length - 2);
-
-                db.execute(query + " WHERE ?? = ?", [table, "Id", id], (err, rows: any[]) => {
+                db.execute(db.format(query + " WHERE ?? = ?", [table, "Id", id]), (err, rows: any[]) => {
                     if (err) rej(err);
                     else res();
                     return;

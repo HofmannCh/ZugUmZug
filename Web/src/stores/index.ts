@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { IAuthState } from './modules/AuthModule'
+import { IAuthState, AuthModule } from './modules/AuthModule'
 import { Role } from '@/lib/UserRole';
 
 Vue.use(Vuex)
@@ -12,7 +12,7 @@ export interface IRootState {
 const store = new Vuex.Store<IRootState>({});
 
 Vue.prototype.isSuperAdmin = function () {
-  return ((store.state.auth?.userRoles as number ?? 0) & Role.SuperAdmin) === Role.SuperAdmin;
+  return AuthModule.isUserSuperAdmin;
 };
 
 // Declare empty store first, dynamically register all modules later.

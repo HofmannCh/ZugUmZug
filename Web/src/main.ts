@@ -13,7 +13,11 @@ Vue.prototype.moment = moment;
 import App from './App.vue'
 import router from './router'
 
+// Install BootstrapVue
 import "bootstrap"
+import { BootstrapVue, FormPlugin } from 'bootstrap-vue'
+Vue.use(BootstrapVue)
+Vue.use(FormPlugin)
 
 Vue.config.productionTip = false
 

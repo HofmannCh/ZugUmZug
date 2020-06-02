@@ -1,6 +1,7 @@
 import store from '@/stores'
 import { Module, VuexModule, Mutation, Action, getModule } from 'vuex-module-decorators'
 import api from '@/lib/Api'
+import { Role } from '@/lib/UserRole'
 
 export interface IAuthState {
     token: string | undefined
@@ -60,6 +61,8 @@ class Auth extends VuexModule implements IAuthState {
     }
 
     public get isUserLoggedIn(): boolean { return !!this.token && !!this.userName }
+
+    public get isUserSuperAdmin(): boolean { return this.userRoles as number & Role.SuperAdmin === Role.SuperAdmin }
 }
 
 export const AuthModule = getModule(Auth)

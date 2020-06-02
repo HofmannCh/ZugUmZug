@@ -53,7 +53,7 @@ export function dynamicQuery(baseQuery: string, wheres: [string, string, string,
     return query.trimEnd();
 }
 
-export default function list(router: Router, tableName: string, baseQuery?: string) {
+export default function list(router: Router, tableName: string, baseQuery?: string, parseOutData?: (rows: any[]) => any[]) {
     router.get("/list", (req, res) => {
         if (!baseQuery)
             return zuzError(res, new ZuzError("Invalid base query", undefined, 500))
@@ -70,9 +70,15 @@ export default function list(router: Router, tableName: string, baseQuery?: stri
             console.log(dynamicQuery(baseQuery, whereConditions, orderAttrs, pagingAttrs));
             db.execute(dynamicQuery(baseQuery, whereConditions, orderAttrs, pagingAttrs), (err: any, rows: any[]) => {
                 if (err) return zuzError(res, err);
-                // for (const i of rows) {
-                //     i.Users = i.Users ? JSON.parse(i.Users).map((x:any) => x.name).join(", ") : "";
-                // }
+
+                if (parseOutData) {
+                    try {
+                        rows = parseOutData(rows);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
+
                 res.json({ last_page: Math.ceil(count / tb.size), data: rows, current_page: tb.page, total: count });
             });
         });

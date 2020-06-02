@@ -12,7 +12,7 @@ export default class FooterComponent extends Vue {
 }
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 footer
   min-height: 80px
   display: flex

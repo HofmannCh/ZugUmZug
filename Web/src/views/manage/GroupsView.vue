@@ -1,17 +1,23 @@
 <template>
   <div class="container-fluid">
     <h1 class="text-center text-sm-left my-2 my-sm-3">Gruppen verwalten</h1>
-    <tabulator-component :columns="columns" apiController="/manage/group"/>
+    <tabulator-component :columns="columns" ref="table" apiController="/manage/group" />
+    <group-modal-component ref="modal" apiController="/manage/group" />
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+import { Vue, Component, Prop, Mixins } from "vue-property-decorator";
 import api from "@/lib/Api";
 import TabulatorComponent from "@/components/TabulatorComponent.vue";
+import GroupModalComponent from "@/components/models/GroupModalComponent.vue";
+import BaseTableMixin from "@/components/layout/BaseTableMixin";
 
-@Component({components: {TabulatorComponent}})
-export default class GroupsView extends Vue {
+@Component({
+  components: { TabulatorComponent, GroupModalComponent },
+  mixins: [BaseTableMixin]
+})
+export default class GroupsView extends Mixins(BaseTableMixin) {
   private readonly columns: any = [
     { title: "Id", field: "Id" },
     { title: "Name", field: "Name" },

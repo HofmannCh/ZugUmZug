@@ -14,7 +14,10 @@
           />
         </div>
         <div class="form-group col-12 col-sm-3 mb-2 p-1 pr-0">
-          <button class="btn btn-primary col-12">Hinzufügen</button>
+          <button
+            class="btn btn-primary col-12"
+            @click="e => { e.preventDefault(); openModal(); }"
+          >Hinzufügen</button>
         </div>
       </form>
     </div>
@@ -54,48 +57,46 @@ export default class TabulatorComponent extends Vue {
         items: "Items"
       },
       pagination: {
-        first: "Erste",
+        first: `<i class="fa fa-angle-double-left"></i>`,
         first_title: "Erste Seite",
-        last: "Letzte",
+        last: `<i class="fa fa-angle-double-right"></i>`,
         last_title: "Letzte Seite",
-        prev: "Vor.",
+        prev: `<i class="fa fa-angle-left"></i>`,
         prev_title: "Vorherige Seite",
-        next: "Näch.",
+        next: `<i class="fa fa-angle-right"></i>`,
         next_title: "Nächste Seite"
       }
     }
   };
 
+  created() {
+    this.$on("reloadTable", () => this.updateTable());
+  }
+
   getApiController() {
     let val = this.apiController || "";
     val = val.startsWith("/") ? val : "/" + val;
-    val = val.endsWith("/") ? val : val + "/list";
+    val = val.endsWith("/") ? val.substring(0, val.length - 1) : val;
     return val;
   }
 
   private ajaxProxy(url: any, config: any, params: any) {
     const that = this;
     return new Promise(function(resolve, reject) {
-      // console.log("Start loading");
-      // console.log(url);
-      // console.log(config);
-      // console.log(that.filter);
-      // console.log(api);
-      // console.log(that.getApiController());
-      api.get(that.getApiController(),{
-        params: {
-          filterText: that.filter,
-          tb: JSON.stringify(params)
-        }
-      })
+      api
+        .get(that.getApiController() + "/list", {
+          params: {
+            filterText: that.filter,
+            tb: JSON.stringify(params)
+          }
+        })
         .then(data => {
-            // console.log(data.data);
+          // console.log(data.data);
           resolve(data.data);
         })
         .catch(err => {
           console.log(err);
           reject(err);
-
         });
 
       setTimeout(
@@ -103,6 +104,10 @@ export default class TabulatorComponent extends Vue {
         2000
       );
     });
+  }
+
+  private openModal(id?: number) {
+    this.$emit("showModal", id ?? 0);
   }
 
   readonly defaultOptions = {
@@ -113,6 +118,8 @@ export default class TabulatorComponent extends Vue {
     langs: this.locals,
 
     columns: this.columns,
+    rowDblClick: (e: any, row: any) =>
+      this.openModal(row.getData().Id as number),
 
     pagination: "remote",
     paginationSize: 10,
@@ -129,28 +136,28 @@ export default class TabulatorComponent extends Vue {
     ajaxLoaderLoading: `<div title='Loading' style='background-image: url("${require("@/assets/loading.svg")}"); background-repeat: no-repeat; height: 20px; width: 150px;'/>`
   };
 
-  public updateTable(ev: any) {
+  public updateTable(ev?: any) {
     if (ev) ev.preventDefault();
     this.table?.replaceData();
   }
 
   private mounted() {
-    (window as any).yeet = this;
     this.table = new Tabulator(this.$refs.tabulatorTable, {
       ...this.defaultOptions,
       ...this.options
     });
+    (window as any).yeet = this.table;
   }
 }
 </script>
 
 <style lang="sass">
 .tabulator
-    .tabulator-loader
-        background-color: rgba(0, 0, 0, 0.2)
+  .tabulator-loader
+    background-color: rgba(0, 0, 0, 0.2)
     .tabulator-loader-msg.tabulator-loading
-        border: 2px solid black
-        background: #fff
-        border-radius: 0
-        padding: 6px
+      border: 2px solid black
+      background: #fff
+      border-radius: 0
+      padding: 6px
 </style>

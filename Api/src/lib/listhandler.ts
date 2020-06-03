@@ -1,7 +1,8 @@
-import { Router } from "express";
+import { Router, Request } from "express";
 import db from "./database";
 import { zuzError } from "./responseHelper";
 import ZuzError from "@/interfaces/ZuzError";
+import { request } from "http";
 
 export function staticQuery(selects: [string, string][], tablename: [string, string], leftJoins: [string, string, string, string][]): string | undefined {
     if (selects.length <= 0)
@@ -19,25 +20,41 @@ export function staticQuery(selects: [string, string][], tablename: [string, str
     return query.trimEnd();
 }
 
-export function staticQueryCount(tablename: string): string {
-    return db.format("SELECT count(??) AS ?? FROM ??", ["Id", "Count", tablename]);
+export function staticQueryCount(tablename: [string, string]): string {
+    return db.format("SELECT count(??) AS ?? FROM ?? AS ??", [tablename[1] + ".Id", "Count", tablename[0], tablename[1]]);
 }
 
-export function whereQuery(baseQuery: string, wheres: [string, string, string, boolean?][]) {
+export function whereOrQuery(ors: [string, string, string, boolean?][]) {
+    let query = ""
+    for (const [condAttr, oper, value] of ors.filter(x => x[3] !== false))
+        query += db.escapeId(condAttr) + " " + oper.trim() + " " + db.escape(value) + " OR ";
+
+    if (query)
+        query = query.slice(0, query.length - 4);
+
+    return query;
+}
+
+export function whereAndQuery(baseQuery: string, wheres: [string, string, string, boolean?][], whereOrQuery?: string) {
     let query = baseQuery + " ";
 
-    if (wheres.filter(x => x[3] !== false).length >= 1) {
+    if (wheres.filter(x => x[3] !== false).length >= 1 || whereOrQuery) {
         query += "WHERE "
+
         for (const [condAttr, oper, value] of wheres.filter(x => x[3] !== false))
             query += db.escapeId(condAttr) + " " + oper.trim() + " " + db.escape(value) + " AND ";
-        query = query.slice(0, query.length - 4);
+
+        if (whereOrQuery)
+            query += `(${whereOrQuery})`
+        else
+            query = query.slice(0, query.length - 4);
     }
 
     return query.trim();
 }
 
-export function dynamicQuery(baseQuery: string, wheres: [string, string, string, boolean?][], orders: [string, string][], limitOffset?: [number, number]) {
-    let query = whereQuery(baseQuery, wheres) + " ";
+export function dynamicQuery(baseQuery: string, wheres: [string, string, string, boolean?][], ors: [string, string, string, boolean?][], orders: [string, string][], limitOffset?: [number, number]) {
+    let query = whereAndQuery(baseQuery, wheres, whereOrQuery(ors)) + " ";
 
     if (orders.length >= 1) {
         query += "ORDER BY "
@@ -53,22 +70,31 @@ export function dynamicQuery(baseQuery: string, wheres: [string, string, string,
     return query.trimEnd();
 }
 
-export default function list(router: Router, tableName: string, baseQuery?: string, parseOutData?: (rows: any[]) => any[]) {
+export default function list(router: Router, tableName: [string, string], baseQuery?: string, searchWhereAndCondition?: (req: Request) => [string, string, string, boolean?][], searchWhereOrCondition?: (req: Request) => [string, string, string, boolean?][], eventAttrName?: string, parseOutData?: (rows: any[]) => any[]) {
     router.get("/list", (req, res) => {
         if (!baseQuery)
             return zuzError(res, new ZuzError("Invalid base query", undefined, 500))
 
         const tb = JSON.parse(req.query.tb);
-        const whereConditions: [string, string, string, boolean?][] = [["Name", "like", req.query.filterText + "%", !!req.query.filterText]];
+        const searchWhereAndConditions = searchWhereAndCondition ? searchWhereAndCondition(req) : [];
+        const searchWhereOrConditions = searchWhereOrCondition ? searchWhereOrCondition(req) : [];
+        searchWhereOrConditions.push([tableName[1] + ".Id", "like", req.query.filterText + "%"])
+        for (const swc of [...searchWhereAndConditions, ...searchWhereOrConditions]){
+            swc[2] = swc[2].toUpperCase();
+            swc[3] = swc[3] == undefined ? !!req.query.filterText : swc[3];
+        }
+
+        if (eventAttrName)
+            searchWhereAndConditions.push([eventAttrName, "=", req.session!.EventId]);
+
         const orderAttrs = tb.sorters.map((x: any) => [x.field, x.dir]);
         const pagingAttrs: [number, number] | undefined = tb.size <= -1 ? undefined : [(tb.page - 1) * tb.size, tb.size]
 
-        db.execute(whereQuery(staticQueryCount(tableName), whereConditions), (countErr: any, countRows: any[]) => {
+        db.execute(whereAndQuery(staticQueryCount(tableName), searchWhereAndConditions, whereOrQuery(searchWhereOrConditions)), (countErr: any, countRows: any[]) => {
             if (countErr) return zuzError(res, countErr);
 
             const count = countRows[0].Count as number;
-            console.log(dynamicQuery(baseQuery, whereConditions, orderAttrs, pagingAttrs));
-            db.execute(dynamicQuery(baseQuery, whereConditions, orderAttrs, pagingAttrs), (err: any, rows: any[]) => {
+            db.execute(dynamicQuery(baseQuery, searchWhereAndConditions, searchWhereOrConditions, orderAttrs, pagingAttrs), (err: any, rows: any[]) => {
                 if (err) return zuzError(res, err);
 
                 if (parseOutData) {

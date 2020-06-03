@@ -44,8 +44,8 @@ export default class BaseFormMixin extends Vue {
     if (form.checkValidity()) {
       // update
       api.post(this.getApiController() + "/cou", this.model).then(res => {
-        console.log(res.data);
-        Vue.toasted.show(res.data.message, { type: "success" });
+        // console.log(res.data);
+        Vue.toasted.success(res.data.message);
         this.$emit("closeModalAndReloadTable");
       });
     } else {

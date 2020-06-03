@@ -39,7 +39,7 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { AuthModule } from "@/stores/modules/AuthModule";
-import SbbImageComponent from "../components/SbbImageComponent.vue";
+import SbbImageComponent from "@/components/SbbImageComponent.vue";
 import { mapGetters } from "vuex";
 
 @Component({

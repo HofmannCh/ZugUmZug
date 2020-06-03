@@ -11,7 +11,7 @@ const api = axios.create({
     transformResponse: [(res): any => {
         const data = JSON.parse(res);
         if (data?.success == false) {
-            Vue.toasted.show(data.data.message, { type: "error" });
+            Vue.toasted.error(data.data.message);
         }
         return data;
     }]

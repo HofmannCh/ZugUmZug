@@ -82,19 +82,12 @@ app.use("/manage/user", require("@r/manage/user").default);
 //Group
 app.use("/group/groupUuid", require("@r/group/groupUuid").default);
 
+// Admin
+app.use("/admin", require("@r/admin").default);
+
 
 // Shit and test
 import zuzJson, { zuzError } from '@lib/responseHelper';
-import { Role } from '@if/UserRole';
-app.get("/", (req: Request, res: Response) => {
-    req.session!.counter = (req.session!.counter > -1 ? req.session!.counter + 1 : 0);
-    return zuzJson(res, {
-        Test: "yay2",
-        c: req.session!.counter,
-        p: process.env
-    })
-});
-
 app.get("/admin/session", auth(Role.SuperAdmin), (req: Request, res: Response) => {
     const result: any = {};
     for (const sessionFile of readdirSync(process.env.SESSIONS_PATH!)) {
@@ -114,6 +107,7 @@ app.get("/admin/session/clear", auth(Role.SuperAdmin), (req: Request, res: Respo
 
 // Exception handling
 import ZuzError from '@if/ZuzError';
+import { Role } from './interfaces/UserRole';
 app.use((err: Error | ZuzError, req: Request, res: Response, next: NextFunction) => {
     zuzError(res, err);
 });

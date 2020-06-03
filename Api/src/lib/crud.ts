@@ -34,12 +34,12 @@ export function error(table: string, req: Request, res: Response) {
     };
 };
 
-export function crud(router: Router, table: string, toExclude?: number, useEventId: boolean = false, alterModels?: (any:any[]) => any[]) {
+export function crud(router: Router, table: string, toExclude?: number, useEventId: boolean = false, alterModels?: (any: any[]) => any[], unalterModels?: (any: any[]) => any[]) {
     if (toExclude == undefined || ((toExclude & CrudRequests.GetById) != CrudRequests.GetById))
         router.get("/r/:id", (req, res) => {
             get(table, Number(req.params.id), useEventId ? req.session!.EventId : undefined).then((o) => {
                 const ao = alterModels ? alterModels([o]) : [o];
-                if(ao?.length)
+                if (ao?.length)
                     o = ao[0];
                 return zuzJson(res, o, !!o, o ? 200 : 404);
             }).catch(error(table, req, res));
@@ -47,9 +47,14 @@ export function crud(router: Router, table: string, toExclude?: number, useEvent
 
     if (toExclude == undefined || ((toExclude & CrudRequests.CreateOrUpdate) != CrudRequests.CreateOrUpdate))
         router.post("/cou/:id?", (req, res) => {
-            createOrUpdate(table, req.body, Number(req.params.id ?? req.body.Id), useEventId ? req.session!.EventId : undefined).then(() => {
-                return zuzJson(res);
-            }).catch(error(table, req, res));
+            try {
+                const [body] = unalterModels ? unalterModels([req.body]) : [req.body];
+                createOrUpdate(table, body, Number(req.params.id ?? body.Id), useEventId ? req.session!.EventId : undefined).then(() => {
+                    return zuzJson(res);
+                }).catch(error(table, req, res));                
+            } catch (err) {
+                error(table, req, res)(err);
+            }
         })
 
     if (toExclude == undefined || ((toExclude & CrudRequests.Destroy) != CrudRequests.Destroy))
@@ -67,7 +72,7 @@ export function get(table: string, id: number, eventId?: number) {
             : db.format("SELECT * FROM ?? WHERE ?? = ? AND ?? = ? LIMIT 1", [table, "Id", id, "EventId", eventId])
             , (err, rows: any[]) => {
                 if (err) rej(err);
-                else if(rows.length <= 0) rej(new ZuzError("Not found", undefined, 404))
+                else if (rows.length <= 0) rej(new ZuzError("Not found", undefined, 404))
                 else res(rows[0]);
                 return;
             });
@@ -105,58 +110,62 @@ export function createOrUpdate(table: string, newData: any, id?: number, eventId
         let isNew = !id || id <= 0;
 
         db.execute(eventId == undefined
-            ? db.format("SELECT * FROM ?? WHERE ?? = ? LIMIT ?", [table, "Id", id, isNew ? 0 : 1])
-            : db.format("SELECT * FROM ?? WHERE ?? = ? AND ?? = ? LIMIT ?", [table, "Id", id, "EventId", eventId, isNew ? 0 : 1])
+            ? db.format("SELECT * FROM ?? WHERE ?? = ? LIMIT ?", [table, "Id", isNew ? 0 : id, isNew ? 0 : 1])
+            : db.format("SELECT * FROM ?? WHERE ?? = ? AND ?? = ? LIMIT ?", [table, "Id", isNew ? 0 : id, "EventId", eventId, isNew ? 0 : 1])
             , (err, rows: any[], fields) => {
-            if (err) {
-                rej(err);
-                return;
-            }
-            isNew = isNew || rows.length <= 0;
-            let updateBody = isNew ? {} : rows[0];
-            delete updateBody.Id;
-
-            let countNew = 0;
-            for (const f of fields.filter(x => x.name !== "Id")) {
-                const val = newData[f.name];
-                if (val == undefined) continue;
-                updateBody[f.name] = val;
-                countNew++;
-            }
-
-            if (countNew <= 0) {
-                res();
-                return;
-            }
-
-            if (isNew) {
-                let query = "INSERT INTO ?? (";
-                for (const p in updateBody) {
-                    query += db.escapeId(p) + ", ";
-                }
-                query = query.substring(0, query.length - 2) + ") VALUES (";
-                for (const p in updateBody) {
-                    query += db.escape(updateBody[p]) + ", ";
-                }
-                query = query.substring(0, query.length - 2) + ")";
-
-                db.execute(db.format(query, [table]), (err, rows: any[]) => {
-                    if (err) rej(err);
-                    else res();
+                if (err) {
+                    rej(err);
                     return;
-                });
-            } else {
-                let query = "UPDATE ?? SET ";
-                for (const p in updateBody) {
-                    query += db.escapeId(p) + " = " + db.escape(updateBody[p]) + ", ";
                 }
-                query = query.substring(0, query.length - 2);
-                db.execute(db.format(query + " WHERE ?? = ?", [table, "Id", id]), (err, rows: any[]) => {
-                    if (err) rej(err);
-                    else res();
+                isNew = isNew || rows.length <= 0;
+                let updateBody = isNew ? {} : rows[0];
+                delete updateBody.Id;
+
+                let countNew = 0;
+                for (const f of fields.filter(x => x.name !== "Id")) {
+                    const val = newData[f.name];
+                    if (val == undefined) continue;
+                    updateBody[f.name] = val;
+                    countNew++;
+                }
+
+                if (countNew <= 0) {
+                    res();
                     return;
-                });
-            }
-        });
+                }
+
+                if (isNew) {
+                    delete updateBody["Id"];
+                    if (eventId)
+                        updateBody.EventId = eventId;
+
+                    let query = "INSERT INTO ?? (";
+                    for (const p in updateBody) {
+                        query += db.escapeId(p) + ", ";
+                    }
+                    query = query.substring(0, query.length - 2) + ") VALUES (";
+                    for (const p in updateBody) {
+                        query += db.escape(updateBody[p]) + ", ";
+                    }
+                    query = query.substring(0, query.length - 2) + ")";
+
+                    db.execute(db.format(query, [table]), (err, rows: any[]) => {
+                        if (err) rej(err);
+                        else res();
+                        return;
+                    });
+                } else {
+                    let query = "UPDATE ?? SET ";
+                    for (const p in updateBody) {
+                        query += db.escapeId(p) + " = " + db.escape(updateBody[p]) + ", ";
+                    }
+                    query = query.substring(0, query.length - 2);
+                    db.execute(db.format(query + " WHERE ?? = ?", [table, "Id", id]), (err, rows: any[]) => {
+                        if (err) rej(err);
+                        else res();
+                        return;
+                    });
+                }
+            });
     });
 }

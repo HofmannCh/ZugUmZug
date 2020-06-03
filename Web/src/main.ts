@@ -1,7 +1,7 @@
 import '@babel/polyfill'
 import 'mutationobserver-shim'
 
-import "jquery"
+// import "jquery"
 
 import Vue from 'vue'
 
@@ -13,21 +13,18 @@ Vue.prototype.moment = moment;
 import App from './App.vue'
 import router from './router'
 
-// Install BootstrapVue
+// BootstrapVue
 import "bootstrap"
-import { BootstrapVue, FormPlugin } from 'bootstrap-vue'
+import { BootstrapVue, FormPlugin, DropdownPlugin } from 'bootstrap-vue'
 Vue.use(BootstrapVue)
 Vue.use(FormPlugin)
+Vue.use(DropdownPlugin)
+
+// import "@/custom.sass";
 
 Vue.config.productionTip = false
 
-import store from "@/stores";
-
-new Vue({
-  router,
-  store,
-  render: render => render(App)
-}).$mount('#app')
+import store from "@/stores/index";
 
 import Toasted from 'vue-toasted';
 Vue.use(Toasted, {
@@ -35,3 +32,9 @@ Vue.use(Toasted, {
   duration: 2000,
   keepOnHover: true,
 })
+
+new Vue({
+  router,
+  store,
+  render: render => render(App)
+}).$mount('#app')

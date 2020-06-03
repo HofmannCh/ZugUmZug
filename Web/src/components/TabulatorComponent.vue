@@ -1,6 +1,54 @@
 <template>
   <div class="table-wrapper">
-    <div class="container-fluid my-2 p-0">
+    <div class="container-fluid my-1 p-0">
+      <div class="row px-3">
+        <div class="col-3 col-sm-auto col-md-auto py-0 pl-0 pr-1 mb-1">
+          <select
+            class="select paging-select form-control"
+            @change="viewCountChange"
+            v-model="viewCount"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="-1">Alle</option>
+          </select>
+        </div>
+        <div class="d-none d-sm-inline-block col-6 col-sm-auto col-md-auto py-0 pl-1 pr-0 mb-1">
+          <button class="btn btn-primary col-12 form-control" @click="downloadContent">
+            <i class="fa fa-download"></i>
+          </button>
+        </div>
+        <div class="d-none d-md-inline-block py-0 pl-2 pr-2 mb-1"></div>
+        <div class="col-5 col-sm-6 col-md-auto py-0 pl-1 pr-1 mb-1 ml-auto">
+          <input type="text" class="form-control col-12 search-text" placeholder="Suche..." />
+        </div>
+        <div class="d-none d-md-inline-block col-auto py-0 pl-1 pr-1 pr-md-1 mb-1">
+          <button class="btn btn-primary col-12 form-control" @click="updateTable">Suchen</button>
+        </div>
+        <div class="d-none d-md-inline-block col-auto py-0 pl-1 pr-0 mb-1">
+          <button
+            class="btn btn-primary col-12 form-control"
+            @click="e => { e.preventDefault(); openModal(); }"
+          >Hinzufügen</button>
+        </div>
+        <div class="col-2 col-sm-auto d-md-none py-0 pl-1 pr-1 pr-md-1 mb-1">
+          <button class="btn btn-primary col-12 form-control" @click="updateTable">
+            <i class="fa fa-search"></i>
+          </button>
+        </div>
+        <div class="col-2 col-sm-auto d-md-none py-0 pl-1 pr-0 mb-1">
+          <button
+            class="btn btn-primary col-12 form-control"
+            @click="e => { e.preventDefault(); openModal(); }"
+          >
+            <i class="fa fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="container-fluid my-2 p-0">
       <form class="form-inline col-12 col-lg-8 col-xl-6 ml-lg-auto p-0">
         <div class="form-group col-8 col-sm-6 mb-2 p-1 pl-0">
           <input type="text" class="form-control col-12" placeholder="Suche..." v-model="filter" />
@@ -16,12 +64,20 @@
         <div class="form-group col-12 col-sm-3 mb-2 p-1 pr-0">
           <button
             class="btn btn-primary col-12"
-            @click="e => { e.preventDefault(); openModal(); }"
+            
           >Hinzufügen</button>
         </div>
       </form>
-    </div>
+    </div>-->
     <div ref="tabulatorTable" class="table table-sm"></div>
+    <div
+      ref="table-footer"
+      v-if="viewCount >= 0"
+    >Angezeigt: {{ viewCount }} von total {{ totalCount || "" }}</div>
+    <div
+      ref="table-footer"
+      v-else
+    >Angezeigt: {{ totalCount || "" }} von total {{ totalCount || "" }}</div>
   </div>
 </template>
 
@@ -39,6 +95,8 @@ export default class TabulatorComponent extends Vue {
   @Prop({ required: true }) apiController?: string;
 
   filter: string = "";
+  viewCount: number = 10;
+  totalCount: number = 0;
 
   constructor() {
     super();
@@ -91,18 +149,18 @@ export default class TabulatorComponent extends Vue {
           }
         })
         .then(data => {
-          // console.log(data.data);
+          // data.data.data = data.data.data.map((x: any) => {
+          //   // x._Actions = `<button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>`;
+          //   return x;
+          // });
           resolve(data.data);
         })
         .catch(err => {
-          console.log(err);
           reject(err);
         });
-
-      setTimeout(
-        () => resolve({ last_page: 1, data: [{ Id: 1, Name: "1" }] }),
-        2000
-      );
+    }).then((data: any) => {
+      this.totalCount = (data.total as number) ?? 0;
+      return data;
     });
   }
 
@@ -110,19 +168,80 @@ export default class TabulatorComponent extends Vue {
     this.$emit("showModal", id ?? 0);
   }
 
+  private deleteCellFormatter(
+    cell: any,
+    formatterParams: any,
+    onRendered: any
+  ) {
+    return `<button class="btn btn-sm btn-danger delete-action"><i class="fa fa-trash"></i></button>`;
+  }
+
+  private cellClick(e: MouseEvent, row: any) {
+    // console.log(e);
+    const eles = (e as any)?.path as Array<Element>;
+    if (!eles) return;
+
+    let container = undefined;
+    let btn = undefined;
+    for (let i = 0; i < eles.length; i++) {
+      if (eles[i].classList.contains("tabulator-cell")) {
+        btn = i > 0 ? eles[i - 1] : eles[i];
+        container = eles[i];
+        break;
+      }
+    }
+
+    if (!container || !btn) return;
+    for (const c of container.children as Iterable<Element>) {
+      if (btn == c) {
+        e.preventDefault();
+        const data = row.getData();
+        if (c.classList.contains("delete-action")) {
+          if (confirm(`${data.Name ?? data.Id} löschen?`)) {
+            api.delete("/manage/group/d/" + data.Id).then(res => {
+              this.table.deleteRow(data.Id);
+              Vue.toasted.success("Gelöscht");
+            });
+            // console.log("Delete ", row.getData().Id);
+          }
+        }
+      }
+    }
+  }
+
+  viewCountChange(e: Event) {
+    // console.log(this.viewCount);
+    this.table.setPageSize(this.viewCount);
+  }
+
+  downloadContent(e: Event) {
+    this.table.download("csv", "data.csv");
+  }
+
   readonly defaultOptions = {
     height: "auto",
-    layout: "fitData",
+    layout: "fitDataStretch",
 
     locale: "de",
     langs: this.locals,
 
-    columns: this.columns,
+    index: "Id",
+    columns: [
+      ...(this.columns as Array<any>),
+      {
+        title: "",
+        formatter: this.deleteCellFormatter,
+        headerSort: false,
+        hozAlign: "right",
+        cellClick: this.cellClick
+      }
+    ],
     rowDblClick: (e: any, row: any) =>
       this.openModal(row.getData().Id as number),
 
     pagination: "remote",
-    paginationSize: 10,
+    paginationSize: this.viewCount,
+    // footerElement: this.$refs["table-footer"], //"<i class='fa fa-trash'></i>",
 
     ajaxURL: api.defaults.baseURL,
     ajaxFiltering: true,

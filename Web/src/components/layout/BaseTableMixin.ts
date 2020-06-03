@@ -19,7 +19,7 @@ export default class BaseTableMixin extends Vue {
     }
 
     closeModalAndReloadTable() {
-        console.log("close");
+        // console.log("close");
         this.table?.$emit("reloadTable");
     }
 }

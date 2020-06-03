@@ -108,7 +108,7 @@
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { AuthModule } from "@/stores/modules/AuthModule";
 import { mapState, mapGetters } from "vuex";
-import { Role } from "../../lib/UserRole";
+import { Role } from "@/lib/UserRole";
 
 @Component({
   computed: {

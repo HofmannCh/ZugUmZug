@@ -1,7 +1,7 @@
 {
-  "name": "train_by_train_api",
+  "name": "zug_um_zug_api",
   "version": "0.1.1",
-  "description": "Backend/Api server for the TrainByTrain app",
+  "description": "Backend/Api server for the ZugUmZug app",
   "keywords": [],
   "author": "Lukas Hofmann",
   "license": "MIT",

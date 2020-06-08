@@ -50,7 +50,7 @@
     "watch": [
       "src"
     ],
-    "exec": "node --inspect=3000 -r tsconfig-paths/register -r ts-node/register ./server.ts",
+    "exec": "node --inspect=3000 -r tsconfig-paths/register -r ts-node/register ./src/server.ts",
     "ext": "ts"
   },
   "_moduleAliases": {

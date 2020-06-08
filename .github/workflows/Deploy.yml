@@ -31,17 +31,13 @@ jobs:
         npm install --only=production
         cd ../../
       
-    - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@2.0.0
-      env:
-        FTP_SERVER: ${{ secrets.FTP_SERVER }}
-        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        METHOD: sftp
-        PORT: 22
-        LOCAL_DIR: ./Api/dist/
-        REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR_API }}
-        ARGS: --delete --transfer-all --exclude=./.env --exclude=sessions/ --exclude=uploads/
+    - name: FTP-Deploy-Action Api
+      uses: SamKirkland/FTP-Deploy-Action@3.0.0
+      with:
+        ftp-server: ${{ secrets.FTP_SERVER_API }}
+        ftp-username: ${{ secrets.FTP_USERNAME }}
+        ftp-password: ${{ secrets.FTP_PASSWORD }}
+        git-ftp-args: --insecure -all
         
     - name: Build Project
       run: |
@@ -50,7 +46,7 @@ jobs:
         npm run build
         cd ../
       
-    - name: FTP-Deploy-Action
+    - name: FTP-Deploy-Action Web
       uses: SamKirkland/FTP-Deploy-Action@2.0.0
       env:
         FTP_SERVER: ${{ secrets.FTP_SERVER }}

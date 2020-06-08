@@ -1,6 +1,6 @@
-.env
-.env-*
-*.local
+*/.env
+*/.env-*
+*/*.local
 
-sessions/
-uploads/
+Api/dist/sessions/
+Api/dist/uploads/

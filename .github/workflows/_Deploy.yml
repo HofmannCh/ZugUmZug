@@ -1,13 +1,13 @@
 name: Build and deploy Web and Api
 
-on:
-  push:
-    branches: 
-      - deploy-prod
+# on:
+#   push:
+#     branches: 
+#       - deploy-prod
 
 jobs:
-  Deploy:
-    name: Deploy
+  DeployWeb:
+    name: DeployWeb
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2
@@ -19,7 +19,38 @@ jobs:
       with:
         node-version: '12.x'
         
-    - name: Build Project Api
+    - name: Build Project
+      run: |
+        cd ./Web
+        npm ci
+        npm run build
+      
+    - name: FTP-Deploy-Action
+      uses: SamKirkland/FTP-Deploy-Action@2.0.0
+      env:
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        METHOD: sftp
+        POST: 22
+        LOCAL_DIR: ./Web/dist/
+        REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR_WEB }}
+        ARGS: --delete --exclude .env
+      
+  DeployApi:
+    name: DeployApi
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: deploy-prod
+
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+        
+    - name: Build Project
       run: |
         cd ./Api/
         rm -rf ./dist/
@@ -41,21 +72,3 @@ jobs:
         LOCAL_DIR: ./Api/dist
         REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR_API }}
         ARGS: --delete --transfer-all --exclude .env --exclude sessions/ --exclude uploads/
-        
-    - name: Build Project
-      run: |
-        cd ./../Web
-        npm ci
-        npm run build
-      
-    - name: FTP-Deploy-Action
-      uses: SamKirkland/FTP-Deploy-Action@2.0.0
-      env:
-        FTP_SERVER: ${{ secrets.FTP_SERVER }}
-        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        METHOD: sftp
-        POST: 22
-        LOCAL_DIR: ./Web/dist/
-        REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR_WEB }}
-        ARGS: --delete --exclude .env

@@ -29,6 +29,7 @@ jobs:
         cd ./dist/
         rm -rf ./node_modules/
         npm install --only=production
+        cd ../../
       
     - name: FTP-Deploy-Action
       uses: SamKirkland/FTP-Deploy-Action@2.0.0
@@ -44,9 +45,10 @@ jobs:
         
     - name: Build Project
       run: |
-        cd ./../Web
+        cd ./Web
         npm ci
         npm run build
+        cd ../
       
     - name: FTP-Deploy-Action
       uses: SamKirkland/FTP-Deploy-Action@2.0.0

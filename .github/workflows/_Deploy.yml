@@ -1,9 +1,9 @@
 name: Build and deploy Web and Api
 
-# on:
-#   push:
-#     branches: 
-#       - deploy-prod
+on:
+  push:
+    branches-ignore:
+      - '**'
 
 jobs:
   DeployWeb:

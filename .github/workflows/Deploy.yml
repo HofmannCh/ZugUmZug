@@ -6,7 +6,7 @@ on:
       - deploy-prod
 
 jobs:
-  Deploy:
+  DeployWeb:
     name: Deploy
     runs-on: ubuntu-18.04
     steps:
@@ -19,36 +19,11 @@ jobs:
       with:
         node-version: '12.x'
         
-    - name: Build Project Api
-      run: |
-        cd ./Api/
-        rm -rf ./dist/
-        npm ci
-        npm run build
-        cp ./prod-package.json ./dist/package.json
-        cd ./dist/
-        rm -rf ./node_modules/
-        npm install --only=production
-        cd ../../
-      
-    - name: FTP-Deploy-Action Api
-      uses: SamKirkland/FTP-Deploy-Action@2.0.0
-      env:
-        FTP_SERVER: ${{ secrets.FTP_SERVER }}
-        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        METHOD: sftp
-        PORT: 22
-        LOCAL_DIR: ./Api/dist/
-        REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR_API }}
-        ARGS: --delete --exclude=.env --exclude=sessions --exclude=uploads
-        
     - name: Build Project Web
       run: |
         cd ./Web
         npm ci
         npm run build
-        cd ../
       
     - name: FTP-Deploy-Action Web
       uses: SamKirkland/FTP-Deploy-Action@2.0.0
@@ -60,4 +35,27 @@ jobs:
         PORT: 22
         LOCAL_DIR: ./Web/dist/
         REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR_WEB }}
-        ARGS: --delete --exclude=.env
+        ARGS: --delete --exclude .env
+        
+    - name: Build Project Api
+      run: |
+        cd ./Api/
+        rm -rf ./dist/
+        npm ci
+        npm run build
+        cp ./prod-package.json ./dist/package.json
+        cd ./dist/
+        cat ./package.json
+        npm install --only-production
+      
+    - name: FTP-Deploy-Action Api
+      uses: SamKirkland/FTP-Deploy-Action@2.0.0
+      env:
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        METHOD: sftp
+        PORT: 22
+        LOCAL_DIR: ./Api/dist
+        REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR_API }}
+        ARGS: --delete --transfer-all --exclude .env --exclude sessions/ --exclude uploads/

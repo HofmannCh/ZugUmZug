@@ -19,7 +19,7 @@
     "bootstrap-vue": "^2.15.0",
     "core-js": "^3.6.5",
     "jquery": "^3.5.1",
-    "moment": "^2.26.0",
+    "moment": "^2.29.4",
     "tabulator-tables": "^4.6.3",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
